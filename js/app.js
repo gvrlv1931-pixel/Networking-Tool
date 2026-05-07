@@ -476,6 +476,181 @@ document.addEventListener('click', e => {
   }
 });
 
+// ─── LinkedIn Import ──────────────────────────────────────────
+let liParsed = [];
+
+function parseCSVRow(line) {
+  const result = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQ && line[i + 1] === '"') { cur += '"'; i++; }
+      else inQ = !inQ;
+    } else if (ch === ',' && !inQ) { result.push(cur); cur = ''; }
+    else cur += ch;
+  }
+  result.push(cur);
+  return result;
+}
+
+function parseLinkedInCSV(text) {
+  const lines = text.split(/\r?\n/);
+  let headerIdx = -1;
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i].toLowerCase();
+    if (l.includes('first name') && l.includes('last name')) { headerIdx = i; break; }
+  }
+  if (headerIdx === -1) return null;
+
+  const headers = parseCSVRow(lines[headerIdx]).map(h => h.trim().toLowerCase().replace(/^"|"$/g, ''));
+  const get = (row, key) => {
+    const idx = headers.indexOf(key);
+    return idx >= 0 ? (row[idx] || '').trim().replace(/^"|"$/g, '') : '';
+  };
+
+  const results = [];
+  for (let i = headerIdx + 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+    const row = parseCSVRow(lines[i]);
+    const name = [get(row, 'first name'), get(row, 'last name')].filter(Boolean).join(' ');
+    if (!name) continue;
+    const company = get(row, 'company');
+    results.push({
+      name,
+      linkedin:  get(row, 'url'),
+      email:     get(row, 'email address'),
+      expertise: get(row, 'position'),
+      context:   company ? `Works at ${company}` : '',
+    });
+  }
+  return results;
+}
+
+function liIsDuplicate(name, email) {
+  return contacts.some(c =>
+    (name  && c.name?.toLowerCase()  === name.toLowerCase()) ||
+    (email && c.email?.toLowerCase() === email.toLowerCase())
+  );
+}
+
+function updateLiFooterCount() {
+  const checked = document.querySelectorAll('.li-row-check:checked').length;
+  document.getElementById('liFooterCount').textContent = `${checked} selected`;
+  document.getElementById('liImportBtn').disabled = checked === 0;
+}
+
+function renderLiPreview(rawData) {
+  liParsed = rawData.map(d => ({ ...d, isDup: liIsDuplicate(d.name, d.email) }));
+  const newCount = liParsed.filter(d => !d.isDup).length;
+  const dupCount = liParsed.filter(d =>  d.isDup).length;
+
+  document.getElementById('liPreviewTitle').textContent =
+    `${liParsed.length} connections · ${newCount} new · ${dupCount} already in network`;
+
+  document.getElementById('liPreviewList').innerHTML = liParsed.map((d, i) => `
+    <label class="li-row${d.isDup ? ' li-row-dup' : ''}" data-idx="${i}">
+      <input type="checkbox" class="li-row-check" data-idx="${i}" ${d.isDup ? '' : 'checked'} />
+      <div class="li-row-body">
+        <div class="li-row-name">${esc(d.name)}
+          ${d.isDup ? '<span class="li-dup-badge">already exists</span>' : ''}
+        </div>
+        <div class="li-row-meta">
+          ${d.expertise ? `<span>${esc(d.expertise)}</span>` : ''}
+          ${d.context   ? `<span>${esc(d.context)}</span>`   : ''}
+          ${d.email     ? `<span>${esc(d.email)}</span>`     : ''}
+        </div>
+      </div>
+    </label>`).join('');
+
+  document.getElementById('liPreviewWrap').style.display = '';
+  document.getElementById('liImportFooter').style.display = '';
+  updateLiFooterCount();
+
+  document.getElementById('liPreviewList').addEventListener('change', e => {
+    if (e.target.classList.contains('li-row-check')) updateLiFooterCount();
+  });
+  document.getElementById('liSelectAll').addEventListener('change', e => {
+    document.querySelectorAll('.li-row-check').forEach(cb => { cb.checked = e.target.checked; });
+    updateLiFooterCount();
+  });
+}
+
+function handleLiFile(file) {
+  if (!file || !file.name.endsWith('.csv')) { toast('Please select a .csv file.'); return; }
+  document.getElementById('liFileName').textContent = `📄 ${file.name}`;
+  document.getElementById('liDropZone').classList.add('has-file');
+  const reader = new FileReader();
+  reader.onload = e => {
+    const data = parseLinkedInCSV(e.target.result);
+    if (!data || data.length === 0) {
+      toast("Couldn't parse file — make sure it's LinkedIn's Connections.csv");
+      document.getElementById('liDropZone').classList.remove('has-file');
+      return;
+    }
+    renderLiPreview(data);
+  };
+  reader.readAsText(file);
+}
+
+function openLinkedInImport() {
+  document.getElementById('linkedinImportOverlay').classList.add('open');
+  liParsed = [];
+  document.getElementById('liFileInput').value = '';
+  document.getElementById('liFileName').textContent = '';
+  document.getElementById('liPreviewWrap').style.display = 'none';
+  document.getElementById('liImportFooter').style.display = 'none';
+  document.getElementById('liDropZone').classList.remove('has-file');
+}
+
+function closeLinkedInImport() {
+  document.getElementById('linkedinImportOverlay').classList.remove('open');
+}
+
+document.getElementById('linkedinImportBtn').addEventListener('click', openLinkedInImport);
+document.getElementById('linkedinImportClose').addEventListener('click', closeLinkedInImport);
+document.getElementById('linkedinImportCancel').addEventListener('click', closeLinkedInImport);
+document.getElementById('linkedinImportOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('linkedinImportOverlay')) closeLinkedInImport();
+});
+
+const liFileInput = document.getElementById('liFileInput');
+liFileInput.addEventListener('change', () => handleLiFile(liFileInput.files[0]));
+
+const liDropZone = document.getElementById('liDropZone');
+liDropZone.addEventListener('dragover', e => { e.preventDefault(); liDropZone.classList.add('drag-over'); });
+liDropZone.addEventListener('dragleave', () => liDropZone.classList.remove('drag-over'));
+liDropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  liDropZone.classList.remove('drag-over');
+  handleLiFile(e.dataTransfer.files[0]);
+});
+
+document.getElementById('liImportBtn').addEventListener('click', () => {
+  const toImport = [...document.querySelectorAll('.li-row-check:checked')]
+    .map(cb => liParsed[parseInt(cb.dataset.idx)]);
+
+  toImport.forEach(d => {
+    contacts.push({
+      id: uid(), addedAt: Date.now(),
+      name: d.name, linkedin: d.linkedin, email: d.email,
+      expertise: d.expertise, context: d.context,
+      networkType: 'professional', stage: 'new',
+      codeword: '', location: '', phone: '', twitter: '', instagram: '',
+      website: '', notes: '', lastSpoken: '', painPoints: '', goals: '',
+      funFacts: '', howUseful: '', howYouHelp: '', inCommon: '',
+      convStatus: '', convPlatform: '', convTopic: '',
+      meetingStatus: '', meetingDate: '', meetingTime: '', meetingVenue: '',
+      actionType: '', nextAction: '', actionDue: '',
+    });
+  });
+
+  save();
+  closeLinkedInImport();
+  renderCurrentView();
+  toast(`✦ Imported ${toImport.length} connection${toImport.length !== 1 ? 's' : ''} from LinkedIn`);
+});
+
 // Color guide
 document.getElementById('colorGuideBtn').addEventListener('click', openColorGuide);
 document.getElementById('colorGuideClose').addEventListener('click', closeColorGuide);

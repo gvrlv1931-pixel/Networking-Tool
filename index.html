@@ -16,6 +16,7 @@
       <div class="logo-sub">Your global network</div>
     </div>
     <div class="header-actions">
+      <button class="color-guide-btn" id="linkedinImportBtn">⬆ LinkedIn</button>
       <button class="color-guide-btn" id="colorGuideBtn">Color Guide</button>
       <div class="view-toggle">
         <button class="view-btn active" data-view="cards">Cards</button>
@@ -386,6 +387,57 @@
     <div class="confirm-actions">
       <button class="btn btn-secondary" id="confirmCancel">Keep</button>
       <button class="btn btn-danger" id="confirmOk">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LINKEDIN IMPORT MODAL ══ -->
+<div class="modal-overlay" id="linkedinImportOverlay">
+  <div class="modal li-modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Import LinkedIn Connections</div>
+      <button class="modal-close" id="linkedinImportClose">x</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Step instructions -->
+      <div class="li-steps">
+        <div class="li-step"><span class="li-step-num">1</span>
+          Go to <strong>LinkedIn → Settings → Data Privacy → Get a copy of your data</strong>
+        </div>
+        <div class="li-step"><span class="li-step-num">2</span>
+          Select <strong>Connections</strong> and request the export
+        </div>
+        <div class="li-step"><span class="li-step-num">3</span>
+          Download the email LinkedIn sends, unzip, and upload <strong>Connections.csv</strong> below
+        </div>
+      </div>
+
+      <!-- Drop zone -->
+      <div class="li-drop-zone" id="liDropZone">
+        <div class="li-drop-icon">📋</div>
+        <div class="li-drop-label">Drop Connections.csv here</div>
+        <div class="li-drop-sub">or click to browse</div>
+        <input type="file" id="liFileInput" accept=".csv" style="position:absolute;inset:0;opacity:0;cursor:pointer" />
+      </div>
+      <div class="li-file-name" id="liFileName"></div>
+
+      <!-- Preview -->
+      <div id="liPreviewWrap" style="display:none">
+        <div class="li-preview-header">
+          <span class="li-preview-title" id="liPreviewTitle"></span>
+          <label class="li-select-all">
+            <input type="checkbox" id="liSelectAll" checked /> Select all
+          </label>
+        </div>
+        <div class="li-preview-list" id="liPreviewList"></div>
+      </div>
+    </div>
+    <div class="modal-footer" id="liImportFooter" style="display:none">
+      <span class="li-footer-count" id="liFooterCount"></span>
+      <button class="btn btn-secondary" id="linkedinImportCancel">Cancel</button>
+      <button class="btn btn-primary" id="liImportBtn">Import Selected</button>
     </div>
   </div>
 </div>

@@ -2089,6 +2089,196 @@ mark { background: #ffe066; color: var(--ink); padding: 0 1px; border-radius: 0;
   font-style: italic;
 }
 
+/* ── LinkedIn Import Modal ── */
+.li-modal { max-width: 620px; }
+
+.li-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  background: var(--faint);
+  border-left: 3px solid var(--ink);
+}
+
+.li-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--ink2);
+  line-height: 1.5;
+}
+
+.li-step-num {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 900;
+  background: var(--ink);
+  color: var(--card);
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.li-drop-zone {
+  position: relative;
+  border: 2px dashed var(--ink);
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  background: var(--card);
+  margin-bottom: 6px;
+}
+
+.li-drop-zone:hover,
+.li-drop-zone.drag-over { background: var(--faint); }
+.li-drop-zone.has-file  { border-style: solid; background: #f6fff8; border-color: var(--green); }
+
+.li-drop-icon { font-size: 28px; margin-bottom: 6px; }
+
+.li-drop-label {
+  font-family: Georgia, serif;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.li-drop-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.li-file-name {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--green);
+  font-weight: 700;
+  margin-bottom: 14px;
+  min-height: 18px;
+}
+
+/* Preview */
+.li-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.li-preview-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ink3);
+}
+
+.li-select-all {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ink2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.li-preview-list {
+  max-height: 340px;
+  overflow-y: auto;
+  border: 2px solid var(--ink);
+  overscroll-behavior: contain;
+}
+
+.li-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--faint);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.li-row:last-child { border-bottom: none; }
+.li-row:hover { background: var(--faint); }
+.li-row-dup { opacity: 0.55; }
+.li-row-dup:hover { opacity: 0.8; }
+
+.li-row input[type="checkbox"] {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  margin-top: 3px;
+  accent-color: var(--ink);
+  cursor: pointer;
+}
+
+.li-row-body { flex: 1; min-width: 0; }
+
+.li-row-name {
+  font-family: Georgia, serif;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.li-dup-badge {
+  font-family: var(--mono);
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 1px 5px;
+  background: var(--faint);
+  color: var(--ink3);
+  border: 1px solid var(--ink3);
+}
+
+.li-row-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink3);
+}
+
+.li-row-meta span + span::before {
+  content: '·';
+  margin-right: 8px;
+}
+
+/* Footer */
+.li-footer-count {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink2);
+  flex: 1;
+}
+
 /* ── Color Guide Modal ── */
 .color-guide-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
 
