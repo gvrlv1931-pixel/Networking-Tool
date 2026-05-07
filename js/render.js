@@ -118,19 +118,26 @@ function meetingDay(dateStr) {
 function meetingItem(c) {
   const ms = getMeetingStatus(c.meetingStatus);
   const col = COLORS[c.colorIdx ?? 0];
+  const icon = c.meetingStatus === 'confirmed' ? '✦' : '◎';
+  const dayOfWeek = c.meetingDate
+    ? new Date(c.meetingDate + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short' }).toUpperCase()
+    : '';
   return `
-    <div class="cal-upcoming-item" data-id="${c.id}">
-      <div class="cal-date-block ${c.meetingStatus}">
-        <div class="cal-date-month">${meetingMonthYear(c.meetingDate)}</div>
-        <div class="cal-date-day">${meetingDay(c.meetingDate)}</div>
+    <div class="cal-ticket" data-id="${c.id}">
+      <div class="cal-ticket-stripe" style="background:${col.bg}"></div>
+      <div class="cal-ticket-date">
+        <div class="cal-ticket-dow">${dayOfWeek}</div>
+        <div class="cal-ticket-day">${meetingDay(c.meetingDate)}</div>
+        <div class="cal-ticket-mon">${meetingMonthYear(c.meetingDate)}</div>
       </div>
-      <div class="cal-event-body">
-        <div class="cal-event-name" style="color:${col.bg}">${esc(c.name)}</div>
-        <div class="cal-event-meta">
-          ${statusPill(ms.label, ms.color)}
-          ${c.meetingTime ? `<span>${esc(c.meetingTime)}</span>` : ''}
+      <div class="cal-ticket-divider"></div>
+      <div class="cal-ticket-body">
+        <div class="cal-ticket-name">${esc(c.name)}</div>
+        <div class="cal-ticket-meta">
+          <span class="cal-ticket-status ${c.meetingStatus}">${icon} ${ms.label}</span>
+          ${c.meetingTime ? `<span class="cal-ticket-time">${esc(c.meetingTime)}</span>` : ''}
         </div>
-        ${c.meetingVenue ? `<div class="cal-event-venue">${esc(c.meetingVenue)}</div>` : ''}
+        ${c.meetingVenue ? `<div class="cal-ticket-venue">📍 ${esc(c.meetingVenue)}</div>` : ''}
       </div>
     </div>`;
 }
@@ -273,7 +280,9 @@ function renderGrid() {
             ${c.expertise ? highlight(c.expertise, q) : '+ expertise / role'}
           </div>
 
-          ${c.location ? `<div class="card-location">${highlight(c.location, q)}</div>` : ''}
+          <div class="card-location editable${c.location ? '' : ' card-location-empty'}" data-field="location" data-id="${c.id}">
+            ${c.location ? `📍 ${highlight(c.location, q)}` : '📍 + add location'}
+          </div>
 
           ${c.context ? `<div class="card-context open-detail" data-id="${c.id}">${highlight(c.context, q)}</div>` : ''}
           ${funFacts.length ? `<div class="card-fact open-detail" data-id="${c.id}">${esc(funFacts[0])}</div>` : ''}
@@ -955,18 +964,25 @@ function renderCalendar() {
   });
 
   const dayHeaders = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
-    .map(d => `<div class="cal-day-header">${d}</div>`).join('');
+    .map((d, i) => `<div class="cal-day-header${i >= 5 ? ' weekend' : ''}">${d}</div>`).join('');
 
   let cells = '';
-  for (let i = 0; i < startOffset; i++) cells += `<div class="cal-cell empty"></div>`;
+  for (let i = 0; i < startOffset; i++) {
+    const colIdx = i % 7;
+    cells += `<div class="cal-cell empty${colIdx >= 5 ? ' weekend' : ''}"></div>`;
+  }
   for (let d = 1; d <= daysInMonth; d++) {
     const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const dayEvents = eventsByDate[dateKey] || [];
-    cells += `<div class="cal-cell${dateKey === todayIso ? ' today' : ''}">
+    const colIdx = (startOffset + d - 1) % 7;
+    const isWeekend = colIdx >= 5;
+    const isToday = dateKey === todayIso;
+    cells += `<div class="cal-cell${isToday ? ' today' : ''}${isWeekend ? ' weekend' : ''}">
       <div class="cal-day-num">${d}</div>
-      ${dayEvents.map(c =>
-        `<div class="cal-event ${c.meetingStatus}" data-id="${c.id}">${esc(c.name.split(' ')[0])}</div>`
-      ).join('')}
+      ${dayEvents.map(c => {
+        const col = COLORS[c.colorIdx ?? 0];
+        return `<div class="cal-event ${c.meetingStatus}" data-id="${c.id}" style="border-left-color:${col.bg};color:${col.bg}">${esc(c.name.split(' ')[0])}</div>`;
+      }).join('')}
     </div>`;
   }
 
@@ -975,17 +991,25 @@ function renderCalendar() {
   const futureUpcoming = upcomingAll.filter(c => c.meetingDate >= todayIso);
   const pastMeetings = upcomingAll.filter(c => c.meetingDate < todayIso).slice(-3).reverse();
 
+  const emptyQuips = [
+    'Your calendar is suspiciously zen. ✦',
+    'No plans yet — the world awaits.',
+    'Wide open. The perfect canvas.',
+    'Zero meetings. Maximum potential.',
+  ];
+  const emptyMsg = emptyQuips[month % emptyQuips.length];
+
   el.innerHTML = `
     <div class="calendar-wrap">
       <div class="cal-nav">
-        <button class="cal-nav-btn" id="calPrev">&lt; Prev</button>
+        <button class="cal-nav-btn" id="calPrev">← Prev</button>
         <div class="cal-month-title">${monthName}</div>
-        <button class="cal-nav-btn" id="calNext">Next &gt;</button>
+        <button class="cal-nav-btn" id="calNext">Next →</button>
       </div>
 
       <div class="cal-legend">
-        <span><span style="display:inline-block;width:10px;height:3px;background:var(--amber)"></span> Potential</span>
-        <span><span style="display:inline-block;width:10px;height:3px;background:var(--green)"></span> Confirmed</span>
+        <span class="cal-legend-item confirmed">✦ Confirmed</span>
+        <span class="cal-legend-item potential">◎ Potential</span>
       </div>
 
       <div class="cal-grid">
@@ -994,14 +1018,14 @@ function renderCalendar() {
       </div>
 
       ${futureUpcoming.length ? `
-        <div class="cal-section-title">Upcoming Meetings</div>
-        <div class="cal-upcoming-list">
+        <div class="cal-section-title">✦ Up Next</div>
+        <div class="cal-ticket-list">
           ${futureUpcoming.map(meetingItem).join('')}
-        </div>` : `<div style="font-size:12px;color:var(--ink3);font-style:italic;margin-bottom:20px">No upcoming meetings. Add one by editing a contact.</div>`}
+        </div>` : `<div class="cal-empty-state">${emptyMsg}<br><span>Edit a contact to schedule a meeting.</span></div>`}
 
       ${pastMeetings.length ? `
-        <div class="cal-section-title">Recent Past</div>
-        <div class="cal-upcoming-list">
+        <div class="cal-section-title">◎ Recent Past</div>
+        <div class="cal-ticket-list cal-past">
           ${pastMeetings.map(meetingItem).join('')}
         </div>` : ''}
     </div>`;
