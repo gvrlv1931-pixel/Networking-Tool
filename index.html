@@ -1900,7 +1900,6 @@ const MEETING_STATUS = {
   confirmed: { label: 'Confirmed', color: '#2a6049' },
 };
 
-// City name → [x%, y%] on equirectangular 0-100 scale
 // x = (lon+180)/360*100, y = (90-lat)/180*100
 const GEO_CITIES = {
   'london': [50.0, 21.4], 'manchester': [49.4, 20.8], 'edinburgh': [49.1, 19.9],
@@ -1974,6 +1973,9 @@ const CONTINENT_PATHS = [
   // UK/Ireland (small)
   'M 465,75 L 492,68 L 498,95 L 482,102 L 465,92 Z',
 ];
+
+// Pre-computed SVG string — continent paths never change so this is built once at startup
+const CONTINENT_PATHS_SVG = CONTINENT_PATHS.map(d => `<path d="${d}" class="geo-continent" />`).join('');
 
 // ─── State ────────────────────────────────────────────────────
 let contacts = [];
@@ -2069,6 +2071,42 @@ function primaryExpertise(c) {
   return (c.expertise || '').split(',')[0].trim() || 'Other';
 }
 
+function getMeetingStatus(key) {
+  return MEETING_STATUS[key] || { label: key, color: '#888' };
+}
+
+function getConvStatus(key) {
+  return CONV_STATUS[key] || { label: key, color: '#888' };
+}
+
+function statusPill(label, color, padding) {
+  return `<span class="status-pill" style="color:${color};border:1.5px solid ${color};font-family:var(--mono);font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;padding:${padding || '1px 5px'};white-space:nowrap">${label}</span>`;
+}
+
+function meetingItem(c) {
+  const ms = getMeetingStatus(c.meetingStatus);
+  const col = COLORS[c.colorIdx ?? 0];
+  return `
+    <div class="cal-upcoming-item" data-id="${c.id}">
+      <div class="cal-date-block ${c.meetingStatus}">
+        <div class="cal-date-month">${meetingMonthYear(c.meetingDate)}</div>
+        <div class="cal-date-day">${meetingDay(c.meetingDate)}</div>
+      </div>
+      <div class="cal-event-body">
+        <div class="cal-event-name" style="color:${col.bg}">${esc(c.name)}</div>
+        <div class="cal-event-meta">
+          ${statusPill(ms.label, ms.color)}
+          ${c.meetingTime ? `<span>${esc(c.meetingTime)}</span>` : ''}
+        </div>
+        ${c.meetingVenue ? `<div class="cal-event-venue">${esc(c.meetingVenue)}</div>` : ''}
+      </div>
+    </div>`;
+}
+
+function renderCurrentView() {
+  renderCurrentView();
+}
+
 function formatMeetingDate(dateStr) {
   if (!dateStr) return '';
   try {
@@ -2145,10 +2183,7 @@ function switchView(view) {
   document.getElementById('mapContainer').style.display = view === 'map' ? '' : 'none';
   document.getElementById('calendarContainer').style.display = view === 'calendar' ? '' : 'none';
 
-  if (view === 'cards') renderGrid();
-  if (view === 'overview') renderOverview();
-  if (view === 'map') renderMap();
-  if (view === 'calendar') renderCalendar();
+  renderCurrentView();
 }
 
 document.querySelector('.view-toggle').addEventListener('click', e => {
@@ -2207,7 +2242,7 @@ function renderGrid() {
 
     let convBadge = '';
     if (c.convStatus) {
-      const cs = CONV_STATUS[c.convStatus] || { label: c.convStatus, color: '#888' };
+      const cs = getConvStatus(c.convStatus);
       const platform = c.convPlatform ? CONV_PLATFORM_LABELS[c.convPlatform] || c.convPlatform : '';
       convBadge = `
         <div class="card-conv-badge ${c.convStatus} open-detail" data-id="${c.id}">
@@ -2219,7 +2254,7 @@ function renderGrid() {
 
     let meetingBadge = '';
     if (c.meetingStatus && c.meetingDate) {
-      const ms = MEETING_STATUS[c.meetingStatus] || { label: c.meetingStatus, color: '#888' };
+      const ms = getMeetingStatus(c.meetingStatus);
       const dateStr = formatMeetingDate(c.meetingDate);
       const timeStr = c.meetingTime ? ` · ${c.meetingTime}` : '';
       const venueStr = c.meetingVenue ? ` · ${c.meetingVenue}` : '';
@@ -2506,23 +2541,8 @@ function renderOverview() {
       ${upcomingMeetings.length ? `
         <div class="ov-section">
           <div class="ov-title">Upcoming Meetings</div>
-          <div class="action-list">
-            ${upcomingMeetings.map(c => {
-              const col = COLORS[c.colorIdx ?? 0];
-              const ms = MEETING_STATUS[c.meetingStatus] || { label: c.meetingStatus, color: '#888' };
-              return `
-                <div class="action-item" data-id="${c.id}">
-                  <div class="action-item-stripe" style="background:${ms.color}"></div>
-                  <div class="action-item-body">
-                    <div class="action-item-who">${esc(c.name)}</div>
-                    <div class="action-item-what">
-                      <span class="action-type-pill" style="color:${ms.color};margin-right:6px">${ms.label}</span>
-                      ${esc(formatMeetingDate(c.meetingDate))}${c.meetingTime ? ' · ' + esc(c.meetingTime) : ''}
-                    </div>
-                    ${c.meetingVenue ? `<div class="action-item-meta"><span style="font-size:11px;color:var(--ink3);font-style:italic">${esc(c.meetingVenue)}</span></div>` : ''}
-                  </div>
-                </div>`;
-            }).join('')}
+          <div class="cal-upcoming-list">
+            ${upcomingMeetings.map(meetingItem).join('')}
           </div>
         </div>` : ''}
 
@@ -2549,8 +2569,6 @@ function renderOverview() {
 // ─── Geographic World Map ──────────────────────────────────────
 function renderMap() {
   const container = document.getElementById('mapContainer');
-  const W = container.clientWidth || 800;
-  const H = container.clientHeight || 500;
 
   // Group contacts by city coords. Contacts without a recognised location go to a "?" pile
   const pinGroups = {}; // key: "x,y" → [contacts]
@@ -2576,38 +2594,22 @@ function renderMap() {
   }
 
   // Scale pct coords → SVG pixels
-  // The SVG uses a fixed 1000x500 viewBox (equirectangular), then scales to container
+  // x = (lon+180)/360*100, y = (90-lat)/180*100 → SVG pixel space
   const VW = 1000, VH = 500;
-  function toSVG(pctX, pctY) {
-    return [pctX * VW / 100, pctY * VH / 100];
-  }
+  const toSVG = (px, py) => [px * VW / 100, py * VH / 100];
 
-  // Draw continent paths
-  const continents = CONTINENT_PATHS.map(d =>
-    `<path d="${d}" class="geo-continent" />`
-  ).join('');
-
-  // Draw pins
   let pinsSVG = '';
-  let namesSVG = '';
 
   Object.values(pinGroups).forEach(({ coords, list }) => {
     const [px, py] = toSVG(coords[0], coords[1]);
     const n = list.length;
     const hasAction = list.some(c => c.nextAction || c.actionType);
     const hasMeeting = list.some(c => c.meetingStatus && c.meetingDate);
-    const hasOverdue = list.some(c => c.actionDue && daysUntil(c.actionDue) < 0);
-
-    // Use first contact's color for pin center
     const col = COLORS[list[0].colorIdx ?? 0];
     const r = n === 1 ? 9 : Math.min(14, 9 + n);
-
-    // Build tooltip title text
     const names = list.map(c => c.name).join(', ');
     const cityName = list[0].location || '';
 
-    // Group <g> acts as click target
-    const ids = list.map(c => `data-id-${c.id}`).join(' ');
     pinsSVG += `
       <g class="geo-pin-group" data-ids="${list.map(c => c.id).join(',')}" data-city="${esc(cityName)}">
         <title>${esc(names)}${cityName ? '\n' + esc(cityName) : ''}</title>
@@ -2653,16 +2655,10 @@ function renderMap() {
 
   container.style.position = 'relative';
 
-  // Pin click → open detail (single) or show list (multiple)
   container.querySelectorAll('.geo-pin-group').forEach(pin => {
     pin.addEventListener('click', () => {
       const ids = pin.dataset.ids.split(',').filter(Boolean);
-      if (ids.length === 1) {
-        openDetail(ids[0]);
-      } else {
-        // Open first contact; TODO: could show a mini list
-        openDetail(ids[0]);
-      }
+      openDetail(ids[0]);
     });
 
     pin.addEventListener('mouseenter', e => {
@@ -2716,30 +2712,23 @@ function renderCalendar() {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const startOffset = firstDay === 0 ? 6 : firstDay - 1; // Monday-first
 
-  const todayStr2 = todayStr();
+  const todayIso = todayStr();
 
-  // Build events by date
   const eventsByDate = {};
   withMeetings.forEach(c => {
     if (!eventsByDate[c.meetingDate]) eventsByDate[c.meetingDate] = [];
     eventsByDate[c.meetingDate].push(c);
   });
 
-  // Day headers
   const dayHeaders = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
     .map(d => `<div class="cal-day-header">${d}</div>`).join('');
 
-  // Cells
   let cells = '';
-  // Leading empty cells
-  for (let i = 0; i < startOffset; i++) {
-    cells += `<div class="cal-cell empty"></div>`;
-  }
+  for (let i = 0; i < startOffset; i++) cells += `<div class="cal-cell empty"></div>`;
   for (let d = 1; d <= daysInMonth; d++) {
     const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const isToday = dateKey === todayStr2;
     const dayEvents = eventsByDate[dateKey] || [];
-    cells += `<div class="cal-cell${isToday ? ' today' : ''}">
+    cells += `<div class="cal-cell${dateKey === todayIso ? ' today' : ''}">
       <div class="cal-day-num">${d}</div>
       ${dayEvents.map(c =>
         `<div class="cal-event ${c.meetingStatus}" data-id="${c.id}">${esc(c.name.split(' ')[0])}</div>`
@@ -2747,32 +2736,10 @@ function renderCalendar() {
     </div>`;
   }
 
-  // Upcoming meetings across all time (sorted)
   const upcomingAll = [...withMeetings]
     .sort((a, b) => (a.meetingDate > b.meetingDate ? 1 : a.meetingDate < b.meetingDate ? -1 : 0));
-
-  const futureUpcoming = upcomingAll.filter(c => c.meetingDate >= todayStr2);
-  const pastMeetings = upcomingAll.filter(c => c.meetingDate < todayStr2).slice(-3).reverse();
-
-  function meetingItem(c) {
-    const ms = MEETING_STATUS[c.meetingStatus] || { label: c.meetingStatus, color: '#888' };
-    const col = COLORS[c.colorIdx ?? 0];
-    return `
-      <div class="cal-upcoming-item" data-id="${c.id}">
-        <div class="cal-date-block ${c.meetingStatus}">
-          <div class="cal-date-month">${meetingMonthYear(c.meetingDate)}</div>
-          <div class="cal-date-day">${meetingDay(c.meetingDate)}</div>
-        </div>
-        <div class="cal-event-body">
-          <div class="cal-event-name" style="color:${col.bg}">${esc(c.name)}</div>
-          <div class="cal-event-meta">
-            <span class="meeting-status-pill" style="color:${ms.color};border:1.5px solid ${ms.color};font-family:var(--mono);font-size:8px;font-weight:700;text-transform:uppercase;padding:1px 5px">${ms.label}</span>
-            ${c.meetingTime ? `<span>${esc(c.meetingTime)}</span>` : ''}
-          </div>
-          ${c.meetingVenue ? `<div class="cal-event-venue">${esc(c.meetingVenue)}</div>` : ''}
-        </div>
-      </div>`;
-  }
+  const futureUpcoming = upcomingAll.filter(c => c.meetingDate >= todayIso);
+  const pastMeetings = upcomingAll.filter(c => c.meetingDate < todayIso).slice(-3).reverse();
 
   el.innerHTML = `
     <div class="calendar-wrap">
@@ -2894,10 +2861,7 @@ document.getElementById('saveBtn').addEventListener('click', () => {
 
   save();
   closeEdit();
-  if (activeView === 'cards') renderGrid();
-  else if (activeView === 'overview') renderOverview();
-  else if (activeView === 'map') renderMap();
-  else if (activeView === 'calendar') renderCalendar();
+  renderCurrentView();
 });
 
 document.getElementById('cancelBtn').addEventListener('click', closeEdit);
@@ -2922,10 +2886,7 @@ document.getElementById('confirmOk').addEventListener('click', () => {
   save();
   document.getElementById('confirmOverlay').classList.remove('open');
   closeEdit();
-  if (activeView === 'cards') renderGrid();
-  else if (activeView === 'overview') renderOverview();
-  else if (activeView === 'map') renderMap();
-  else if (activeView === 'calendar') renderCalendar();
+  renderCurrentView();
   toast('Deleted');
 });
 
@@ -2983,32 +2944,34 @@ function openDetail(id) {
       <div class="detail-text">${esc(c.howUseful)}</div>
     </div>` : '')}
 
-    ${c.convStatus ? (() => {
-      const cs = CONV_STATUS[c.convStatus] || { label: c.convStatus, color: '#888' };
+    ${(() => {
+      if (!c.convStatus) return '';
+      const cs = getConvStatus(c.convStatus);
       const platform = c.convPlatform ? CONV_PLATFORM_LABELS[c.convPlatform] || c.convPlatform : '';
       return `
         <div class="detail-conv-block ${c.convStatus}">
           <div class="detail-section-title" style="margin-bottom:6px">Conversation</div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
-            <span class="conv-status-pill" style="color:${cs.color};border:1.5px solid ${cs.color};font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 6px">${cs.label}</span>
+            ${statusPill(cs.label, cs.color, '2px 6px')}
             ${platform ? `<span style="font-family:var(--mono);font-size:9px;color:var(--ink3);background:var(--faint);padding:2px 6px">${esc(platform)}</span>` : ''}
           </div>
           ${c.convTopic ? `<div class="detail-text">${esc(c.convTopic)}</div>` : ''}
         </div>`;
-    })() : ''}
+    })()}
 
-    ${c.meetingStatus && c.meetingDate ? (() => {
-      const ms = MEETING_STATUS[c.meetingStatus] || { label: c.meetingStatus, color: '#888' };
+    ${(() => {
+      if (!c.meetingStatus || !c.meetingDate) return '';
+      const ms = getMeetingStatus(c.meetingStatus);
       return `
         <div class="detail-meeting-block ${c.meetingStatus}">
           <div class="detail-section-title" style="margin-bottom:6px">Meeting</div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
-            <span class="meeting-status-pill" style="color:${ms.color};border:1.5px solid ${ms.color};font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 6px">${ms.label}</span>
+            ${statusPill(ms.label, ms.color, '2px 6px')}
             <span style="font-family:var(--mono);font-size:11px;color:var(--ink2)">${esc(formatMeetingDate(c.meetingDate))}${c.meetingTime ? ' · ' + esc(c.meetingTime) : ''}</span>
           </div>
           ${c.meetingVenue ? `<div class="detail-text" style="font-style:italic">${esc(c.meetingVenue)}</div>` : ''}
         </div>`;
-    })() : ''}
+    })()}
 
     ${c.context ? `
     <div class="detail-section">
