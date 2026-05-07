@@ -4,1538 +4,27 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 <title>Network</title>
-<style>
-  :root {
-    --bg: #f0ebe0;
-    --card: #ffffff;
-    --ink: #111111;
-    --ink2: #444444;
-    --ink3: #888888;
-    --faint: #ddd8cc;
-    --red: #c1121f;
-    --amber: #d4820a;
-    --green: #2a6049;
-    --mono: 'Courier New', Courier, monospace;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-    min-height: 100dvh;
-  }
-
-  /* ── Header ── */
-  .header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: var(--bg);
-    border-bottom: 2px solid var(--ink);
-    padding: 12px 14px 0;
-  }
-
-  .header-top {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-
-  .logo {
-    font-size: 20px;
-    font-weight: 900;
-    letter-spacing: -1px;
-    text-transform: uppercase;
-    line-height: 1;
-    flex: 1;
-  }
-
-  .view-toggle {
-    display: flex;
-    gap: 0;
-    border: 1.5px solid var(--ink);
-    overflow: hidden;
-  }
-
-  .view-btn {
-    background: none;
-    border: none;
-    border-right: 1.5px solid var(--ink);
-    color: var(--ink3);
-    font-size: 10px;
-    font-weight: 700;
-    font-family: var(--mono);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 5px 9px;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.1s;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .view-btn:last-child { border-right: none; }
-  .view-btn:hover { background: var(--faint); color: var(--ink); }
-  .view-btn.active { background: var(--ink); color: var(--card); }
-
-  .count-badge {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--ink3);
-    white-space: nowrap;
-  }
-
-  /* ── Search ── */
-  .search-wrap {
-    position: relative;
-    margin-bottom: 10px;
-  }
-
-  .search-input {
-    width: 100%;
-    background: var(--card);
-    border: 2px solid var(--ink);
-    color: var(--ink);
-    font-size: 14px;
-    font-family: inherit;
-    padding: 9px 40px 9px 10px;
-    outline: none;
-    border-radius: 0;
-    -webkit-appearance: none;
-  }
-
-  .search-input:focus { background: #fffef9; }
-  .search-input::placeholder { color: var(--ink3); font-style: italic; }
-
-  .search-clear {
-    position: absolute;
-    right: 0; top: 0; bottom: 0;
-    width: 38px;
-    background: none;
-    border: none;
-    border-left: 2px solid var(--ink);
-    cursor: pointer;
-    font-size: 11px;
-    font-weight: 900;
-    font-family: var(--mono);
-    color: var(--ink3);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.1s;
-  }
-
-  .search-clear.visible { display: flex; }
-  .search-clear:hover { background: var(--ink); color: var(--card); }
-
-  /* ── Filters ── */
-  .filters-wrap {
-    overflow-x: auto;
-    scrollbar-width: none;
-    display: flex;
-    gap: 0;
-    white-space: nowrap;
-  }
-
-  .filters-wrap::-webkit-scrollbar { display: none; }
-
-  .filter-chip {
-    background: none;
-    border: none;
-    border-bottom: 3px solid transparent;
-    color: var(--ink3);
-    font-size: 11px;
-    font-weight: 700;
-    font-family: var(--mono);
-    padding: 8px 12px 6px;
-    cursor: pointer;
-    white-space: nowrap;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: color 0.1s, border-color 0.1s;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .filter-chip:first-child { padding-left: 0; }
-  .filter-chip:hover { color: var(--ink); }
-  .filter-chip.active { color: var(--ink); border-bottom-color: var(--ink); }
-
-  /* ── Sort bar ── */
-  .sort-bar {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    border-bottom: 1px solid var(--faint);
-  }
-
-  .sort-bar::-webkit-scrollbar { display: none; }
-
-  .sort-label {
-    font-family: var(--mono);
-    font-size: 10px;
-    text-transform: uppercase;
-    color: var(--ink3);
-    flex-shrink: 0;
-    letter-spacing: 0.5px;
-  }
-
-  .sort-btn {
-    background: none;
-    border: 1.5px solid var(--faint);
-    color: var(--ink3);
-    font-size: 10px;
-    font-family: var(--mono);
-    padding: 3px 8px;
-    cursor: pointer;
-    white-space: nowrap;
-    border-radius: 0;
-    transition: all 0.1s;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .sort-btn:hover { border-color: var(--ink); color: var(--ink); }
-  .sort-btn.active { background: var(--ink); color: var(--card); border-color: var(--ink); }
-
-  /* ── Grid ── */
-  .grid {
-    padding: 14px 12px 100px;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  @media (min-width: 480px) { .grid { grid-template-columns: 1fr 1fr; } }
-  @media (min-width: 768px) { .grid { grid-template-columns: 1fr 1fr 1fr; padding: 16px 16px 100px; } }
-  @media (min-width: 1100px) { .grid { grid-template-columns: repeat(4, 1fr); } }
-
-  /* ── Card ── */
-  .card {
-    background: var(--card);
-    border: 2px solid var(--ink);
-    box-shadow: 4px 4px 0 var(--ink);
-    position: relative;
-    animation: pop 0.18s ease both;
-    transition: box-shadow 0.1s, transform 0.1s;
-  }
-
-  @keyframes pop {
-    from { opacity: 0; transform: translateY(5px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .card:hover { box-shadow: 6px 6px 0 var(--ink); transform: translate(-1px,-1px); }
-
-  .card-stripe { height: 6px; width: 100%; }
-  .card-body { padding: 12px 14px 14px; }
-
-  .card-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
-
-  .card-name {
-    font-size: 17px;
-    font-weight: 800;
-    line-height: 1.2;
-    letter-spacing: -0.3px;
-    font-family: Georgia, 'Times New Roman', serif;
-    cursor: text;
-    flex: 1;
-    min-width: 0;
-    word-break: break-word;
-  }
-
-  .card-name:hover { text-decoration: underline; text-decoration-style: dotted; }
-
-  .card-edit-btn {
-    background: none;
-    border: 1.5px solid var(--faint);
-    color: var(--ink3);
-    font-size: 9px;
-    font-family: var(--mono);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 3px 7px;
-    cursor: pointer;
-    flex-shrink: 0;
-    border-radius: 0;
-    transition: all 0.1s;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .card-edit-btn:hover { background: var(--ink); color: var(--card); border-color: var(--ink); }
-
-  .card-codeword {
-    display: inline-block;
-    font-family: var(--mono);
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border: 1.5px solid currentColor;
-    padding: 2px 6px;
-    margin-bottom: 6px;
-    cursor: text;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .card-codeword-empty {
-    display: inline-block;
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--ink3);
-    border: 1.5px dashed var(--faint);
-    padding: 2px 6px;
-    margin-bottom: 6px;
-    cursor: text;
-    font-style: italic;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .card-expertise {
-    font-size: 12px;
-    color: var(--ink2);
-    margin-bottom: 8px;
-    cursor: text;
-    line-height: 1.4;
-  }
-
-  .card-expertise-empty {
-    font-size: 12px;
-    color: var(--ink3);
-    margin-bottom: 8px;
-    cursor: text;
-    font-style: italic;
-  }
-
-  .card-expertise:hover, .card-expertise-empty:hover {
-    text-decoration: underline;
-    text-decoration-style: dotted;
-  }
-
-  .card-context {
-    font-size: 11px;
-    color: var(--ink3);
-    line-height: 1.5;
-    margin-bottom: 8px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    font-style: italic;
-    cursor: pointer;
-  }
-
-  .card-fact {
-    font-size: 11px;
-    color: var(--ink2);
-    line-height: 1.4;
-    margin-bottom: 8px;
-    padding: 5px 8px;
-    border-left: 3px solid var(--faint);
-    cursor: pointer;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  /* ── Action badge on card ── */
-  .card-action-badge {
-    display: flex;
-    align-items: flex-start;
-    gap: 7px;
-    margin-bottom: 8px;
-    padding: 6px 8px;
-    border-left: 3px solid var(--amber);
-    background: rgba(212,130,10,0.06);
-    cursor: pointer;
-  }
-
-  .card-action-badge.urgent { border-left-color: var(--red); background: rgba(193,18,31,0.06); }
-
-  .action-type-pill {
-    font-family: var(--mono);
-    font-size: 8px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 1px 5px;
-    border: 1.5px solid currentColor;
-    white-space: nowrap;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-
-  .action-text {
-    font-size: 11px;
-    color: var(--ink2);
-    line-height: 1.4;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    flex: 1;
-  }
-
-  .action-due {
-    font-family: var(--mono);
-    font-size: 9px;
-    color: var(--ink3);
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  .action-due.overdue { color: var(--red); font-weight: 700; }
-
-  .card-divider {
-    border: none;
-    border-top: 1px solid var(--faint);
-    margin: 8px 0;
-  }
-
-  .card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-  }
-
-  .card-date-wrap {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--ink3);
-    cursor: pointer;
-    flex: 1;
-    min-width: 0;
-  }
-
-  .card-date-wrap:hover .date-label { text-decoration: underline; text-decoration-style: dotted; }
-
-  .recency-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .date-label { white-space: nowrap; }
-
-  .card-date-input {
-    font-family: var(--mono);
-    font-size: 11px;
-    border: none;
-    border-bottom: 2px solid var(--ink);
-    background: none;
-    outline: none;
-    color: var(--ink);
-    padding: 0;
-    max-width: 130px;
-    border-radius: 0;
-    cursor: pointer;
-    display: none;
-  }
-
-  .today-btn {
-    background: none;
-    border: 1.5px solid var(--faint);
-    color: var(--ink3);
-    font-family: var(--mono);
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 2px 5px;
-    cursor: pointer;
-    border-radius: 0;
-    white-space: nowrap;
-    flex-shrink: 0;
-    transition: all 0.1s;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .today-btn:hover { background: var(--ink); color: var(--card); border-color: var(--ink); }
-
-  .stage-tag {
-    font-family: var(--mono);
-    font-size: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    padding: 2px 6px;
-    border: 1.5px solid currentColor;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  /* ── Inline edit ── */
-  .inline-input {
-    background: #fffef9;
-    border: none;
-    border-bottom: 2px solid var(--ink);
-    outline: none;
-    font-family: inherit;
-    font-size: inherit;
-    font-weight: inherit;
-    color: var(--ink);
-    padding: 1px 2px;
-    width: 100%;
-    border-radius: 0;
-  }
-
-  .inline-name { font-size: 17px; font-weight: 800; font-family: Georgia, serif; letter-spacing: -0.3px; }
-  .inline-mono { font-family: var(--mono); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-  .inline-small { font-size: 12px; }
-
-  /* ── Empty / no results ── */
-  .empty {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 60px 24px;
-    border: 2px dashed var(--faint);
-  }
-
-  .empty-title { font-size: 20px; font-weight: 800; font-family: Georgia, serif; margin-bottom: 8px; }
-  .empty-sub { font-size: 13px; color: var(--ink3); font-style: italic; }
-
-  .no-results {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 40px 20px;
-    border: 2px dashed var(--faint);
-  }
-
-  .no-results-title { font-size: 15px; font-weight: 700; font-family: Georgia, serif; margin-bottom: 6px; }
-  .no-results-sub { font-size: 12px; font-style: italic; color: var(--ink3); }
-
-  /* ── FAB ── */
-  .fab {
-    position: fixed;
-    bottom: 24px;
-    right: 20px;
-    background: var(--ink);
-    color: var(--card);
-    border: 2px solid var(--ink);
-    box-shadow: 4px 4px 0 rgba(0,0,0,0.25);
-    width: 52px;
-    height: 52px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 200;
-    font-size: 28px;
-    font-weight: 300;
-    line-height: 1;
-    transition: transform 0.1s, box-shadow 0.1s;
-    border-radius: 0;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .fab:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 rgba(0,0,0,0.25); }
-  .fab:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 rgba(0,0,0,0.25); }
-
-  /* ── Overview ── */
-  .overview {
-    padding: 14px 14px 100px;
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
-  .ov-section { margin-bottom: 24px; }
-
-  .ov-title {
-    font-family: var(--mono);
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--ink3);
-    margin-bottom: 10px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid var(--faint);
-  }
-
-  .stat-row {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-
-  @media (min-width: 480px) { .stat-row { grid-template-columns: repeat(4, 1fr); } }
-
-  .stat-block {
-    background: var(--card);
-    border: 2px solid var(--ink);
-    box-shadow: 3px 3px 0 var(--ink);
-    padding: 12px;
-    text-align: center;
-  }
-
-  .stat-num {
-    font-size: 28px;
-    font-weight: 900;
-    font-family: Georgia, serif;
-    line-height: 1;
-    margin-bottom: 4px;
-  }
-
-  .stat-label {
-    font-family: var(--mono);
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--ink3);
-  }
-
-  .action-list { display: flex; flex-direction: column; gap: 8px; }
-
-  .action-item {
-    background: var(--card);
-    border: 2px solid var(--ink);
-    box-shadow: 2px 2px 0 var(--ink);
-    padding: 10px 12px;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    cursor: pointer;
-    transition: box-shadow 0.1s, transform 0.1s;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .action-item:hover { box-shadow: 4px 4px 0 var(--ink); transform: translate(-1px,-1px); }
-
-  .action-item-stripe {
-    width: 4px;
-    align-self: stretch;
-    flex-shrink: 0;
-  }
-
-  .action-item-body { flex: 1; min-width: 0; }
-
-  .action-item-who {
-    font-size: 14px;
-    font-weight: 700;
-    font-family: Georgia, serif;
-    margin-bottom: 2px;
-  }
-
-  .action-item-what {
-    font-size: 12px;
-    color: var(--ink2);
-    margin-bottom: 4px;
-    line-height: 1.4;
-  }
-
-  .action-item-meta {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .action-item-due {
-    font-family: var(--mono);
-    font-size: 9px;
-    color: var(--ink3);
-  }
-
-  .action-item-due.overdue { color: var(--red); font-weight: 700; }
-
-  .action-item-useful {
-    font-size: 11px;
-    color: var(--ink3);
-    font-style: italic;
-    border-left: 2px solid var(--faint);
-    padding-left: 8px;
-    margin-top: 6px;
-    line-height: 1.4;
-  }
-
-  .stage-breakdown { display: flex; flex-direction: column; gap: 6px; }
-
-  .stage-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .stage-row-label {
-    font-family: var(--mono);
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    width: 90px;
-    flex-shrink: 0;
-    color: var(--ink2);
-  }
-
-  .stage-bar-wrap {
-    flex: 1;
-    background: var(--faint);
-    height: 12px;
-    border: 1px solid var(--ink);
-    overflow: hidden;
-  }
-
-  .stage-bar { height: 100%; transition: width 0.4s; }
-
-  .stage-count {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--ink3);
-    width: 20px;
-    text-align: right;
-    flex-shrink: 0;
-  }
-
-  .recent-list { display: flex; flex-direction: column; gap: 6px; }
-
-  .recent-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    background: var(--card);
-    border: 1.5px solid var(--faint);
-    cursor: pointer;
-    transition: border-color 0.1s;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .recent-item:hover { border-color: var(--ink); }
-
-  .recent-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .recent-name {
-    font-size: 13px;
-    font-weight: 700;
-    font-family: Georgia, serif;
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .recent-date {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--ink3);
-    flex-shrink: 0;
-  }
-
-  .useful-list { display: flex; flex-direction: column; gap: 6px; }
-
-  .useful-item {
-    padding: 8px 10px;
-    background: var(--card);
-    border: 1.5px solid var(--faint);
-    border-left: 3px solid var(--ink);
-    cursor: pointer;
-    transition: border-color 0.1s;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .useful-item:hover { border-color: var(--ink); }
-
-  .useful-who {
-    font-size: 12px;
-    font-weight: 700;
-    font-family: Georgia, serif;
-    margin-bottom: 2px;
-  }
-
-  .useful-text { font-size: 12px; color: var(--ink2); line-height: 1.4; }
-
-  .ov-empty {
-    font-size: 12px;
-    color: var(--ink3);
-    font-style: italic;
-    padding: 10px 0;
-  }
-
-  /* ── Map ── */
-  .map-container {
-    width: 100%;
-    height: calc(100dvh - 120px);
-    min-height: 400px;
-    overflow: hidden;
-    position: relative;
-    background: var(--bg);
-  }
-
-  .map-svg { display: block; width: 100%; height: 100%; }
-
-  .map-tooltip {
-    position: fixed;
-    background: var(--ink);
-    color: var(--card);
-    font-family: var(--mono);
-    font-size: 11px;
-    padding: 6px 10px;
-    pointer-events: none;
-    z-index: 400;
-    white-space: nowrap;
-    display: none;
-  }
-
-  /* ── Modal overlay ── */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.55);
-    z-index: 300;
-    display: flex;
-    align-items: flex-end;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-  }
-
-  .modal-overlay.open { opacity: 1; pointer-events: all; }
-
-  @media (min-width: 600px) {
-    .modal-overlay { align-items: center; justify-content: center; }
-  }
-
-  /* ── Modal ── */
-  .modal {
-    background: var(--bg);
-    border: 2px solid var(--ink);
-    border-bottom: none;
-    width: 100%;
-    max-height: 92dvh;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    transform: translateY(100%);
-    transition: transform 0.25s cubic-bezier(0.32,0.72,0,1);
-    padding-bottom: env(safe-area-inset-bottom, 20px);
-  }
-
-  .modal-overlay.open .modal { transform: translateY(0); }
-
-  @media (min-width: 600px) {
-    .modal {
-      border: 2px solid var(--ink);
-      box-shadow: 8px 8px 0 var(--ink);
-      max-width: 580px;
-      max-height: 90dvh;
-      transform: translateY(16px) scale(0.97);
-    }
-    .modal-overlay.open .modal { transform: translateY(0) scale(1); }
-  }
-
-  .modal-handle {
-    width: 32px;
-    height: 3px;
-    background: var(--faint);
-    margin: 10px auto 0;
-    border-radius: 2px;
-  }
-
-  @media (min-width: 600px) { .modal-handle { display: none; } }
-
-  .modal-header {
-    position: sticky;
-    top: 0;
-    background: var(--bg);
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 14px 10px;
-    border-bottom: 2px solid var(--ink);
-  }
-
-  .modal-title {
-    font-size: 13px;
-    font-weight: 900;
-    text-transform: uppercase;
-    font-family: var(--mono);
-    letter-spacing: 1px;
-  }
-
-  .modal-close {
-    background: none;
-    border: 1.5px solid var(--ink);
-    color: var(--ink);
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 11px;
-    font-weight: 900;
-    font-family: var(--mono);
-    border-radius: 0;
-    transition: all 0.1s;
-  }
-
-  .modal-close:hover { background: var(--ink); color: var(--card); }
-
-  .modal-body { padding: 14px; }
-
-  /* ── Form ── */
-  .form-section { margin-bottom: 18px; }
-
-  .form-section-title {
-    font-family: var(--mono);
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--ink3);
-    margin-bottom: 10px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid var(--faint);
-  }
-
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .form-group { margin-bottom: 10px; }
-
-  .form-label {
-    display: block;
-    font-family: var(--mono);
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: var(--ink2);
-    margin-bottom: 4px;
-  }
-
-  .form-input, .form-textarea, .form-select {
-    width: 100%;
-    background: var(--card);
-    border: 1.5px solid var(--ink);
-    color: var(--ink);
-    font-size: 14px;
-    padding: 8px 10px;
-    outline: none;
-    font-family: inherit;
-    border-radius: 0;
-    -webkit-appearance: none;
-    transition: box-shadow 0.1s;
-  }
-
-  .form-input:focus, .form-textarea:focus, .form-select:focus { box-shadow: 3px 3px 0 var(--ink); }
-  .form-input::placeholder, .form-textarea::placeholder { color: var(--ink3); font-style: italic; }
-  .form-textarea { resize: none; min-height: 72px; line-height: 1.5; }
-  .form-textarea.short { min-height: 56px; }
-  .form-select { cursor: pointer; }
-  .form-select option { background: var(--card); }
-
-  /* ── Color swatches ── */
-  .color-row { display: flex; gap: 6px; flex-wrap: wrap; }
-
-  .color-swatch {
-    width: 26px;
-    height: 26px;
-    border: 2px solid transparent;
-    cursor: pointer;
-    transition: transform 0.1s;
-    flex-shrink: 0;
-  }
-
-  .color-swatch.selected {
-    border-color: var(--ink);
-    transform: scale(1.2);
-    outline: 2px solid var(--card);
-    outline-offset: -3px;
-  }
-
-  /* ── Modal footer ── */
-  .modal-footer {
-    display: flex;
-    gap: 8px;
-    padding: 10px 14px 14px;
-    border-top: 2px solid var(--ink);
-    position: sticky;
-    bottom: 0;
-    background: var(--bg);
-  }
-
-  .btn {
-    flex: 1;
-    border: 2px solid var(--ink);
-    font-size: 12px;
-    font-weight: 700;
-    font-family: var(--mono);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 11px;
-    cursor: pointer;
-    border-radius: 0;
-    transition: all 0.1s;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .btn:active { transform: translate(2px,2px); }
-
-  .btn-primary { background: var(--ink); color: var(--card); box-shadow: 3px 3px 0 rgba(0,0,0,0.2); }
-  .btn-primary:hover { box-shadow: 4px 4px 0 rgba(0,0,0,0.25); transform: translate(-1px,-1px); }
-
-  .btn-secondary { background: var(--card); color: var(--ink); }
-  .btn-secondary:hover { background: var(--faint); }
-
-  .btn-danger { background: none; border-color: var(--red); color: var(--red); flex: 0; padding: 11px 14px; }
-  .btn-danger:hover { background: var(--red); color: var(--card); }
-
-  /* ── Detail modal ── */
-  .detail-hero {
-    padding: 16px 14px;
-    border-bottom: 2px solid var(--ink);
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-  }
-
-  .detail-avatar {
-    width: 54px;
-    height: 54px;
-    border: 2px solid var(--ink);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    font-weight: 900;
-    font-family: Georgia, serif;
-    flex-shrink: 0;
-    letter-spacing: -1px;
-  }
-
-  .detail-name { font-size: 22px; font-weight: 900; font-family: Georgia, serif; letter-spacing: -0.5px; margin-bottom: 4px; line-height: 1.1; }
-
-  .detail-codeword {
-    font-family: var(--mono);
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border: 1.5px solid currentColor;
-    padding: 2px 6px;
-    display: inline-block;
-    margin-bottom: 4px;
-  }
-
-  .detail-section { padding: 12px 14px; border-bottom: 1px solid var(--faint); }
-
-  .detail-section-title {
-    font-family: var(--mono);
-    font-size: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--ink3);
-    margin-bottom: 6px;
-  }
-
-  .detail-text { font-size: 14px; color: var(--ink2); line-height: 1.6; }
-
-  .detail-chips { display: flex; flex-wrap: wrap; gap: 5px; }
-
-  .detail-chip {
-    font-family: var(--mono);
-    font-size: 10px;
-    padding: 3px 8px;
-    border: 1.5px solid currentColor;
-  }
-
-  .fun-facts-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
-
-  .fun-facts-list li {
-    font-size: 13px;
-    color: var(--ink2);
-    padding: 7px 10px;
-    border-left: 3px solid var(--ink);
-    background: var(--card);
-    line-height: 1.5;
-  }
-
-  .contact-list { display: flex; flex-direction: column; gap: 7px; }
-
-  .contact-item { display: flex; align-items: baseline; gap: 10px; font-size: 13px; }
-
-  .contact-label-tag {
-    font-family: var(--mono);
-    font-size: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: var(--ink3);
-    width: 64px;
-    flex-shrink: 0;
-  }
-
-  .contact-val { color: var(--ink2); word-break: break-all; }
-  .contact-val a { color: var(--ink); text-underline-offset: 3px; }
-
-  /* Detail action block */
-  .detail-action-block {
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--faint);
-    border-left: 4px solid var(--amber);
-    background: rgba(212,130,10,0.04);
-  }
-
-  .detail-action-block.urgent { border-left-color: var(--red); background: rgba(193,18,31,0.04); }
-
-  /* ── Confirm ── */
-  .confirm-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    z-index: 500;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.15s;
-  }
-
-  .confirm-overlay.open { opacity: 1; pointer-events: all; }
-
-  .confirm-box {
-    background: var(--card);
-    border: 2px solid var(--ink);
-    box-shadow: 6px 6px 0 var(--ink);
-    padding: 22px;
-    width: 100%;
-    max-width: 300px;
-    transform: scale(0.92);
-    transition: transform 0.15s;
-    text-align: center;
-  }
-
-  .confirm-overlay.open .confirm-box { transform: scale(1); }
-  .confirm-box h3 { font-family: Georgia, serif; font-size: 18px; margin-bottom: 8px; }
-  .confirm-box p { font-size: 13px; color: var(--ink2); margin-bottom: 18px; line-height: 1.5; }
-  .confirm-actions { display: flex; gap: 8px; }
-  .confirm-actions .btn { padding: 10px; }
-  .confirm-actions .btn-danger { flex: 1; padding: 10px 14px; }
-
-  /* ── Toast ── */
-  .toast {
-    position: fixed;
-    bottom: 88px;
-    left: 50%;
-    transform: translateX(-50%) translateY(12px);
-    background: var(--ink);
-    color: var(--card);
-    font-family: var(--mono);
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 8px 16px;
-    z-index: 1000;
-    opacity: 0;
-    transition: all 0.2s;
-    white-space: nowrap;
-    pointer-events: none;
-  }
-
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  mark { background: #ffe066; color: var(--ink); padding: 0 1px; border-radius: 0; }
-
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--faint); }
-
-  /* ── Location on card ── */
-  .card-location {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--ink3);
-    margin-bottom: 6px;
-    letter-spacing: 0.3px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  /* ── Conversation badge on card ── */
-  .card-conv-badge {
-    display: flex;
-    align-items: flex-start;
-    gap: 6px;
-    margin-bottom: 8px;
-    padding: 6px 8px;
-    border-left: 3px solid #457b9d;
-    background: rgba(69,123,157,0.06);
-    cursor: pointer;
-  }
-
-  .card-conv-badge.waiting  { border-left-color: #6d597a; background: rgba(109,89,122,0.06); }
-  .card-conv-badge.arranging { border-left-color: #2a9d8f; background: rgba(42,157,143,0.06); }
-  .card-conv-badge.active   { border-left-color: #2a9d8f; background: rgba(42,157,143,0.06); }
-
-  .conv-status-pill {
-    font-family: var(--mono);
-    font-size: 8px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 1px 4px;
-    border: 1.5px solid currentColor;
-    white-space: nowrap;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-
-  .conv-platform-tag {
-    font-family: var(--mono);
-    font-size: 8px;
-    color: var(--ink3);
-    white-space: nowrap;
-    flex-shrink: 0;
-    margin-top: 2px;
-    padding: 0 3px;
-    background: var(--faint);
-  }
-
-  .conv-topic-text {
-    font-size: 11px;
-    color: var(--ink2);
-    line-height: 1.4;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    flex: 1;
-  }
-
-  /* ── Meeting badge on card ── */
-  .card-meeting-badge {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 8px;
-    padding: 5px 8px;
-    cursor: pointer;
-    border-left: 3px solid var(--amber);
-    background: rgba(212,130,10,0.06);
-  }
-
-  .card-meeting-badge.confirmed {
-    border-left-color: var(--green);
-    background: rgba(42,96,73,0.07);
-  }
-
-  .meeting-status-pill {
-    font-family: var(--mono);
-    font-size: 8px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 1px 4px;
-    border: 1.5px solid currentColor;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  .meeting-info-text {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--ink2);
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  /* ── Calendar view ── */
-  .calendar-wrap {
-    padding: 14px 14px 100px;
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
-  .cal-nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-  }
-
-  .cal-month-title {
-    font-family: Georgia, serif;
-    font-size: 18px;
-    font-weight: 800;
-    letter-spacing: -0.3px;
-  }
-
-  .cal-nav-btn {
-    background: none;
-    border: 1.5px solid var(--ink);
-    color: var(--ink);
-    font-family: var(--mono);
-    font-size: 11px;
-    font-weight: 700;
-    padding: 5px 12px;
-    cursor: pointer;
-    border-radius: 0;
-    transition: all 0.1s;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .cal-nav-btn:hover { background: var(--ink); color: var(--card); }
-
-  .cal-grid {
-    border: 2px solid var(--ink);
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    margin-bottom: 24px;
-  }
-
-  .cal-day-header {
-    font-family: var(--mono);
-    font-size: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--ink3);
-    text-align: center;
-    padding: 6px 2px;
-    border-bottom: 1.5px solid var(--ink);
-    border-right: 1px solid var(--faint);
-    background: var(--faint);
-  }
-
-  .cal-day-header:last-child { border-right: none; }
-
-  .cal-cell {
-    border-right: 1px solid var(--faint);
-    border-bottom: 1px solid var(--faint);
-    min-height: 64px;
-    padding: 4px;
-    background: var(--card);
-    position: relative;
-  }
-
-  .cal-cell:nth-child(7n) { border-right: none; }
-  .cal-cell.empty { background: var(--bg); }
-  .cal-cell.today { background: #fffef0; }
-  .cal-cell.today .cal-day-num { font-weight: 900; color: var(--ink); }
-
-  .cal-day-num {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--ink3);
-    margin-bottom: 3px;
-  }
-
-  .cal-event {
-    font-size: 8px;
-    font-family: var(--mono);
-    padding: 2px 4px;
-    margin-bottom: 2px;
-    cursor: pointer;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    transition: opacity 0.1s;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .cal-event:hover { opacity: 0.75; }
-  .cal-event.potential { background: rgba(212,130,10,0.18); color: #7a4d00; border-left: 2px solid var(--amber); }
-  .cal-event.confirmed { background: rgba(42,96,73,0.18); color: #1a3d2e; border-left: 2px solid var(--green); }
-
-  .cal-section-title {
-    font-family: var(--mono);
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--ink3);
-    margin-bottom: 10px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid var(--faint);
-  }
-
-  .cal-upcoming-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
-
-  .cal-upcoming-item {
-    background: var(--card);
-    border: 2px solid var(--ink);
-    box-shadow: 2px 2px 0 var(--ink);
-    padding: 10px 12px;
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    cursor: pointer;
-    transition: box-shadow 0.1s, transform 0.1s;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .cal-upcoming-item:hover { box-shadow: 4px 4px 0 var(--ink); transform: translate(-1px,-1px); }
-
-  .cal-date-block {
-    width: 48px;
-    flex-shrink: 0;
-    text-align: center;
-    border: 1.5px solid var(--ink);
-    padding: 4px 2px;
-  }
-
-  .cal-date-month {
-    font-family: var(--mono);
-    font-size: 8px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--ink3);
-    margin-bottom: 1px;
-  }
-
-  .cal-date-day {
-    font-family: Georgia, serif;
-    font-size: 22px;
-    font-weight: 900;
-    line-height: 1;
-  }
-
-  .cal-date-block.confirmed .cal-date-day { color: var(--green); }
-  .cal-date-block.potential .cal-date-day { color: var(--amber); }
-
-  .cal-event-body { flex: 1; min-width: 0; }
-
-  .cal-event-name {
-    font-family: Georgia, serif;
-    font-size: 14px;
-    font-weight: 700;
-    margin-bottom: 3px;
-  }
-
-  .cal-event-meta {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--ink3);
-    margin-bottom: 3px;
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .cal-event-venue {
-    font-size: 11px;
-    color: var(--ink2);
-    font-style: italic;
-  }
-
-  .cal-legend {
-    display: flex;
-    gap: 14px;
-    margin-bottom: 14px;
-    font-family: var(--mono);
-    font-size: 9px;
-    color: var(--ink3);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .cal-legend span { display: flex; align-items: center; gap: 4px; }
-
-  /* ── Geo World Map ── */
-  .geo-continent { fill: #d8d2c5; stroke: #b8b2a5; stroke-width: 0.8; }
-  .geo-ocean { fill: #e8e3d8; }
-
-  .geo-pin-group { cursor: pointer; }
-  .geo-pin-bg { fill: white; stroke: var(--ink); stroke-width: 1.5; transition: r 0.15s; }
-  .geo-pin-group:hover .geo-pin-bg { stroke-width: 2.5; }
-  .geo-pin-dot { stroke: none; }
-  .geo-pin-action { fill: #d4820a; stroke: white; stroke-width: 1; pointer-events: none; }
-  .geo-pin-meeting-dot { fill: #2a6049; stroke: white; stroke-width: 1; pointer-events: none; }
-
-  .geo-city-label {
-    font-family: var(--mono);
-    font-size: 7px;
-    fill: var(--ink3);
-    pointer-events: none;
-    text-anchor: middle;
-  }
-
-  .geo-map-legend {
-    position: absolute;
-    bottom: 14px;
-    left: 14px;
-    font-family: var(--mono);
-    font-size: 9px;
-    color: var(--ink3);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    display: flex;
-    gap: 14px;
-    align-items: center;
-    background: rgba(240,235,224,0.85);
-    padding: 5px 8px;
-    border: 1px solid var(--faint);
-  }
-
-  .geo-map-legend span { display: flex; align-items: center; gap: 4px; }
-
-  /* Detail conv section */
-  .detail-conv-block {
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--faint);
-    border-left: 4px solid #457b9d;
-    background: rgba(69,123,157,0.04);
-  }
-
-  .detail-conv-block.waiting  { border-left-color: #6d597a; background: rgba(109,89,122,0.04); }
-  .detail-conv-block.arranging { border-left-color: #2a9d8f; background: rgba(42,157,143,0.04); }
-  .detail-conv-block.active   { border-left-color: #2a9d8f; background: rgba(42,157,143,0.04); }
-
-  .detail-meeting-block {
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--faint);
-    border-left: 4px solid var(--amber);
-    background: rgba(212,130,10,0.04);
-  }
-
-  .detail-meeting-block.confirmed {
-    border-left-color: var(--green);
-    background: rgba(42,96,73,0.05);
-  }
-</style>
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <!-- Header -->
 <div class="header">
   <div class="header-top">
-    <div class="logo">Network</div>
-    <div class="view-toggle">
-      <button class="view-btn active" data-view="cards">Cards</button>
-      <button class="view-btn" data-view="overview">Overview</button>
-      <button class="view-btn" data-view="map">Map</button>
-      <button class="view-btn" data-view="calendar">Cal</button>
+    <div class="logo-wrap">
+      <div class="logo">Network</div>
+      <div class="logo-sub">Your global network</div>
     </div>
-    <span class="count-badge" id="countBadge">0</span>
+    <div class="header-actions">
+      <button class="color-guide-btn" id="colorGuideBtn">Color Guide</button>
+      <div class="view-toggle">
+        <button class="view-btn active" data-view="cards">Cards</button>
+        <button class="view-btn" data-view="overview">Overview</button>
+        <button class="view-btn" data-view="map">Map</button>
+        <button class="view-btn" data-view="calendar">Cal</button>
+      </div>
+      <span class="count-badge" id="countBadge">0</span>
+    </div>
   </div>
   <div id="headerSearch">
     <div class="search-wrap">
@@ -1544,25 +33,31 @@
         autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
       <button class="search-clear" id="searchClear" title="Clear">x</button>
     </div>
-    <div class="filters-wrap" id="filtersWrap">
-      <button class="filter-chip active" data-filter="all">All</button>
-      <button class="filter-chip" data-filter="action">Has action</button>
-      <button class="filter-chip" data-filter="recent">Recent</button>
-      <button class="filter-chip" data-filter="no-contact">Overdue</button>
-      <button class="filter-chip" data-filter="expertise">Has expertise</button>
-      <button class="filter-chip" data-filter="no-codeword">No codeword</button>
+    <div class="filters-row">
+      <div class="filters-wrap" id="filtersWrap">
+        <button class="filter-chip active" data-filter="all">All</button>
+        <button class="filter-chip" data-filter="professional">Pro</button>
+        <button class="filter-chip" data-filter="personal">Personal</button>
+        <button class="filter-chip" data-filter="both">Both</button>
+        <button class="filter-chip" data-filter="action">Has Action</button>
+        <button class="filter-chip" data-filter="recent">Recent</button>
+        <button class="filter-chip" data-filter="no-contact">Overdue</button>
+      </div>
+      <div class="sort-dropdown-wrap">
+        <button class="sort-dropdown-btn" id="sortDropdownBtn">
+          <span class="sort-dropdown-label">A–Z</span>
+          <span>▾</span>
+        </button>
+        <div class="sort-dropdown" id="sortDropdown">
+          <button class="sort-option active" data-sort="name">A–Z</button>
+          <button class="sort-option" data-sort="name-desc">Z–A</button>
+          <button class="sort-option" data-sort="recent">Last spoken</button>
+          <button class="sort-option" data-sort="action">Action due</button>
+          <button class="sort-option" data-sort="added">Date added</button>
+        </div>
+      </div>
     </div>
   </div>
-</div>
-
-<!-- Sort bar (cards view only) -->
-<div class="sort-bar" id="sortBarWrap">
-  <span class="sort-label">Sort by:</span>
-  <button class="sort-btn active" data-sort="name">A–Z</button>
-  <button class="sort-btn" data-sort="name-desc">Z–A</button>
-  <button class="sort-btn" data-sort="recent">Last spoken</button>
-  <button class="sort-btn" data-sort="action">Action due</button>
-  <button class="sort-btn" data-sort="added">Date added</button>
 </div>
 
 <!-- Cards view -->
@@ -1586,6 +81,40 @@
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<!-- Bottom Nav (mobile) -->
+<nav class="bottom-nav" id="bottomNav">
+  <button class="nav-item active" data-view="cards">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="3" width="9" height="9"/><rect x="13" y="3" width="9" height="9"/>
+      <rect x="2" y="14" width="9" height="9"/><rect x="13" y="14" width="9" height="9"/>
+    </svg>
+    Cards
+  </button>
+  <button class="nav-item" data-view="overview">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+      <line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/>
+      <line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+    </svg>
+    Overview
+  </button>
+  <button class="nav-item" data-view="map">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+      <line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>
+    </svg>
+    Map
+  </button>
+  <button class="nav-item" data-view="calendar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+    Cal
+  </button>
+</nav>
+
 <!-- ══ EDIT MODAL ══ -->
 <div class="modal-overlay" id="editOverlay">
   <div class="modal">
@@ -1596,209 +125,235 @@
     </div>
     <div class="modal-body">
 
-      <div class="form-section">
-        <div class="form-section-title">Identity</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Full Name *</label>
-            <input class="form-input" id="f-name" type="text" placeholder="Jane Smith" maxlength="80" />
+      <details class="form-section" open>
+        <summary>Identity</summary>
+        <div class="form-section-content">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Full Name *</label>
+              <input class="form-input" id="f-name" type="text" placeholder="Jane Smith" maxlength="80" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Codeword</label>
+              <input class="form-input" id="f-codeword" type="text" placeholder="e.g. Startup Jane" maxlength="40" />
+            </div>
           </div>
           <div class="form-group">
-            <label class="form-label">Codeword</label>
-            <input class="form-input" id="f-codeword" type="text" placeholder="e.g. Startup Jane" maxlength="40" />
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Card Color</label>
-          <div class="color-row" id="colorRow"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Expertise / Role</label>
-            <input class="form-input" id="f-expertise" type="text" placeholder="e.g. Product Design, Growth, DevRel" maxlength="100" />
+            <label class="form-label">Card Color</label>
+            <div class="color-row" id="colorRow"></div>
           </div>
           <div class="form-group">
-            <label class="form-label">Location</label>
-            <input class="form-input" id="f-location" type="text" placeholder="e.g. London, UK" maxlength="80" />
-          </div>
-        </div>
-      </div>
-
-      <div class="form-section">
-        <div class="form-section-title">Next Action</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Action Type</label>
-            <select class="form-select" id="f-actionType">
-              <option value="">-- none --</option>
-              <option value="message">Send message</option>
-              <option value="reply">Reply</option>
-              <option value="follow-up">Follow up</option>
-              <option value="intro">Make intro</option>
-              <option value="call">Schedule call</option>
-              <option value="meet">Meet in person</option>
-              <option value="share">Share resource</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Due Date</label>
-            <input class="form-input" id="f-actionDue" type="date" />
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">What to Do</label>
-          <textarea class="form-textarea short" id="f-nextAction" placeholder="e.g. Send intro email connecting her with Jordan re: DevRel role"></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">How They Can Help You</label>
-          <textarea class="form-textarea short" id="f-howUseful" placeholder="e.g. Can intro me to climate VCs, has deep PLG expertise for Series A advice"></textarea>
-        </div>
-      </div>
-
-      <div class="form-section">
-        <div class="form-section-title">Ongoing Conversation</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Status</label>
-            <select class="form-select" id="f-convStatus">
-              <option value="">-- none --</option>
-              <option value="follow-up">Need to follow up</option>
-              <option value="waiting">Waiting for reply</option>
-              <option value="arranging">Arranging meetup</option>
-              <option value="active">Active back-and-forth</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Platform</label>
-            <select class="form-select" id="f-convPlatform">
-              <option value="">-- platform --</option>
-              <option value="email">Email</option>
-              <option value="linkedin">LinkedIn</option>
-              <option value="whatsapp">WhatsApp</option>
-              <option value="x">X / Twitter</option>
-              <option value="phone">Phone</option>
-              <option value="slack">Slack</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">What the Conversation is About</label>
-          <textarea class="form-textarea short" id="f-convTopic" placeholder="e.g. Discussing API partnership, she said she'd send intro to their CTO"></textarea>
-        </div>
-      </div>
-
-      <div class="form-section">
-        <div class="form-section-title">Meeting</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Meeting Status</label>
-            <select class="form-select" id="f-meetingStatus">
-              <option value="">-- none --</option>
-              <option value="potential">Potential</option>
-              <option value="confirmed">Confirmed</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Date</label>
-            <input class="form-input" id="f-meetingDate" type="date" />
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Time</label>
-            <input class="form-input" id="f-meetingTime" type="time" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Venue / Platform</label>
-            <input class="form-input" id="f-meetingVenue" type="text" placeholder="e.g. Blue Bottle Coffee / Zoom" maxlength="80" />
-          </div>
-        </div>
-      </div>
-
-      <div class="form-section">
-        <div class="form-section-title">How You Met</div>
-        <div class="form-group">
-          <label class="form-label">Context</label>
-          <textarea class="form-textarea short" id="f-context" placeholder="e.g. Met at ProductConf NYC 2024, sat next to each other at lunch..."></textarea>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Last Spoken</label>
-            <input class="form-input" id="f-lastSpoken" type="date" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Relationship Stage</label>
-            <select class="form-select" id="f-stage">
+            <label class="form-label">Network Type</label>
+            <select class="form-select" id="f-networkType">
               <option value="">-- pick one --</option>
-              <option value="new">New connection</option>
-              <option value="warm">Warming up</option>
-              <option value="active">Actively in touch</option>
-              <option value="dormant">Gone quiet</option>
-              <option value="close">Close ally</option>
+              <option value="professional">Professional</option>
+              <option value="personal">Personal</option>
+              <option value="both">Both</option>
             </select>
           </div>
         </div>
-      </div>
+      </details>
 
-      <div class="form-section">
-        <div class="form-section-title">Their World</div>
-        <div class="form-group">
-          <label class="form-label">Pain Points</label>
-          <textarea class="form-textarea short" id="f-painPoints" placeholder="What keeps them up at night?"></textarea>
+      <details class="form-section" open>
+        <summary>Background</summary>
+        <div class="form-section-content">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Expertise / Role</label>
+              <input class="form-input" id="f-expertise" type="text" placeholder="e.g. Product Design, Growth, DevRel" maxlength="100" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Location</label>
+              <input class="form-input" id="f-location" type="text" placeholder="e.g. London, UK" maxlength="80" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Context (how you met)</label>
+            <textarea class="form-textarea short" id="f-context" placeholder="e.g. Met at ProductConf NYC 2024, sat next to each other at lunch..."></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Last Spoken</label>
+              <input class="form-input" id="f-lastSpoken" type="date" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Relationship Stage</label>
+              <select class="form-select" id="f-stage">
+                <option value="">-- pick one --</option>
+                <option value="new">New connection</option>
+                <option value="warm">Warming up</option>
+                <option value="active">Actively in touch</option>
+                <option value="dormant">Gone quiet</option>
+                <option value="close">Close ally</option>
+              </select>
+            </div>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Goals and Ambitions</label>
-          <textarea class="form-textarea short" id="f-goals" placeholder="What are they working toward?"></textarea>
-        </div>
-      </div>
+      </details>
 
-      <div class="form-section">
-        <div class="form-section-title">Fun Facts and Anchors</div>
-        <div class="form-group">
-          <label class="form-label">Fun Facts (one per line)</label>
-          <textarea class="form-textarea" id="f-funFacts" placeholder="Loves surfing&#10;Has 3 rescue cats&#10;Went to Burning Man 5 times"></textarea>
+      <details class="form-section" open>
+        <summary>Conversation &amp; Meeting</summary>
+        <div class="form-section-content">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Action Type</label>
+              <select class="form-select" id="f-actionType">
+                <option value="">-- none --</option>
+                <option value="message">Send message</option>
+                <option value="reply">Reply</option>
+                <option value="follow-up">Follow up</option>
+                <option value="intro">Make intro</option>
+                <option value="call">Schedule call</option>
+                <option value="meet">Meet in person</option>
+                <option value="share">Share resource</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Action Due Date</label>
+              <input class="form-input" id="f-actionDue" type="date" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">What to Do</label>
+            <textarea class="form-textarea short" id="f-nextAction" placeholder="e.g. Send intro email connecting her with Jordan re: DevRel role"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Conv. Status</label>
+              <select class="form-select" id="f-convStatus">
+                <option value="">-- none --</option>
+                <option value="follow-up">Need to follow up</option>
+                <option value="waiting">Waiting for reply</option>
+                <option value="arranging">Arranging meetup</option>
+                <option value="active">Active back-and-forth</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Platform</label>
+              <select class="form-select" id="f-convPlatform">
+                <option value="">-- platform --</option>
+                <option value="email">Email</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="x">X / Twitter</option>
+                <option value="phone">Phone</option>
+                <option value="slack">Slack</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Conversation Topic</label>
+            <textarea class="form-textarea short" id="f-convTopic" placeholder="e.g. Discussing API partnership, she said she'd send intro to their CTO"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Meeting Status</label>
+              <select class="form-select" id="f-meetingStatus">
+                <option value="">-- none --</option>
+                <option value="potential">Potential</option>
+                <option value="confirmed">Confirmed</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Meeting Date</label>
+              <input class="form-input" id="f-meetingDate" type="date" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Meeting Time</label>
+              <input class="form-input" id="f-meetingTime" type="time" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Venue / Platform</label>
+              <input class="form-input" id="f-meetingVenue" type="text" placeholder="e.g. Blue Bottle Coffee / Zoom" maxlength="80" />
+            </div>
+          </div>
         </div>
-      </div>
+      </details>
 
-      <div class="form-section">
-        <div class="form-section-title">Contact and Socials</div>
-        <div class="form-row">
+      <details class="form-section">
+        <summary>Their World</summary>
+        <div class="form-section-content">
           <div class="form-group">
-            <label class="form-label">Email</label>
-            <input class="form-input" id="f-email" type="email" placeholder="jane@example.com" />
+            <label class="form-label">Pain Points</label>
+            <textarea class="form-textarea short" id="f-painPoints" placeholder="What keeps them up at night?"></textarea>
           </div>
           <div class="form-group">
-            <label class="form-label">Phone</label>
-            <input class="form-input" id="f-phone" type="tel" placeholder="+1 555 0100" />
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">LinkedIn</label>
-            <input class="form-input" id="f-linkedin" type="text" placeholder="linkedin.com/in/..." />
+            <label class="form-label">Goals and Ambitions</label>
+            <textarea class="form-textarea short" id="f-goals" placeholder="What are they working toward?"></textarea>
           </div>
           <div class="form-group">
-            <label class="form-label">X / Twitter</label>
-            <input class="form-input" id="f-twitter" type="text" placeholder="@handle" />
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Instagram</label>
-            <input class="form-input" id="f-instagram" type="text" placeholder="@handle" />
+            <label class="form-label">How They Can Help You</label>
+            <textarea class="form-textarea short" id="f-howUseful" placeholder="e.g. Can intro me to climate VCs, has deep PLG expertise for Series A advice"></textarea>
           </div>
           <div class="form-group">
-            <label class="form-label">Website</label>
-            <input class="form-input" id="f-website" type="text" placeholder="https://..." />
+            <label class="form-label">How You Can Help Them</label>
+            <textarea class="form-textarea short" id="f-howYouHelp" placeholder="e.g. Can connect them with hiring managers, share distribution for their launch"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">In Common (personal / both)</label>
+            <textarea class="form-textarea short" id="f-inCommon" placeholder="e.g. Both love 90s hip-hop, same undergrad cohort, both have dogs named Biscuit"></textarea>
           </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Notes</label>
-          <textarea class="form-textarea short" id="f-notes" placeholder="Anything else worth remembering..."></textarea>
+      </details>
+
+      <details class="form-section">
+        <summary>Fun &amp; Personal</summary>
+        <div class="form-section-content">
+          <div class="form-group">
+            <label class="form-label">Fun Facts (one per line)</label>
+            <textarea class="form-textarea" id="f-funFacts" placeholder="Loves surfing&#10;Has 3 rescue cats&#10;Went to Burning Man 5 times"></textarea>
+          </div>
         </div>
-      </div>
+      </details>
+
+      <details class="form-section">
+        <summary>Contact Details</summary>
+        <div class="form-section-content">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input class="form-input" id="f-email" type="email" placeholder="jane@example.com" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone</label>
+              <input class="form-input" id="f-phone" type="tel" placeholder="+1 555 0100" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">LinkedIn</label>
+              <input class="form-input" id="f-linkedin" type="text" placeholder="linkedin.com/in/..." />
+            </div>
+            <div class="form-group">
+              <label class="form-label">X / Twitter</label>
+              <input class="form-input" id="f-twitter" type="text" placeholder="@handle" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Instagram</label>
+              <input class="form-input" id="f-instagram" type="text" placeholder="@handle" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Website</label>
+              <input class="form-input" id="f-website" type="text" placeholder="https://..." />
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="form-section">
+        <summary>Notes</summary>
+        <div class="form-section-content">
+          <div class="form-group">
+            <textarea class="form-textarea short" id="f-notes" placeholder="Anything else worth remembering..."></textarea>
+          </div>
+        </div>
+      </details>
 
     </div>
     <div class="modal-footer">
@@ -1836,1389 +391,24 @@
   </div>
 </div>
 
-<script>
-// ─── Constants ────────────────────────────────────────────────
-const STORAGE_KEY = 'nw_contacts_v1';
-
-const COLORS = [
-  { bg: '#e63946' },
-  { bg: '#f4a261' },
-  { bg: '#2a9d8f' },
-  { bg: '#457b9d' },
-  { bg: '#6d597a' },
-  { bg: '#e9c46a' },
-  { bg: '#264653' },
-  { bg: '#c77dff' },
-  { bg: '#023e8a' },
-  { bg: '#606c38' },
-];
-
-const STAGE_LABELS = {
-  new:     { label: 'New',        color: '#457b9d' },
-  warm:    { label: 'Warming up', color: '#f4a261' },
-  active:  { label: 'Active',     color: '#2a9d8f' },
-  dormant: { label: 'Gone quiet', color: '#888888' },
-  close:   { label: 'Close ally', color: '#6d597a' },
-};
-
-const ACTION_LABELS = {
-  message:   'Msg',
-  reply:     'Rpl',
-  'follow-up': 'Fup',
-  intro:     'Int',
-  call:      'Call',
-  meet:      'Meet',
-  share:     'Shr',
-  other:     'Oth',
-};
-
-const ACTION_FULL = {
-  message:   'Send message',
-  reply:     'Reply',
-  'follow-up': 'Follow up',
-  intro:     'Make intro',
-  call:      'Schedule call',
-  meet:      'Meet in person',
-  share:     'Share resource',
-  other:     'Action',
-};
-
-const CONV_STATUS = {
-  'follow-up': { label: 'Follow up',       color: '#d4820a' },
-  'waiting':   { label: 'Waiting',          color: '#457b9d' },
-  'arranging': { label: 'Arranging meetup', color: '#2a9d8f' },
-  'active':    { label: 'Active',           color: '#2a9d8f' },
-};
-
-const CONV_PLATFORM_LABELS = {
-  email: 'Email', linkedin: 'LinkedIn', x: 'X', whatsapp: 'WhatsApp',
-  phone: 'Phone', slack: 'Slack', other: '',
-};
-
-const MEETING_STATUS = {
-  potential: { label: 'Potential', color: '#d4820a' },
-  confirmed: { label: 'Confirmed', color: '#2a6049' },
-};
-
-// x = (lon+180)/360*100, y = (90-lat)/180*100
-const GEO_CITIES = {
-  'london': [50.0, 21.4], 'manchester': [49.4, 20.8], 'edinburgh': [49.1, 19.9],
-  'dublin': [48.3, 20.3], 'paris': [50.6, 22.8], 'berlin': [53.7, 20.8],
-  'amsterdam': [51.4, 20.8], 'madrid': [49.0, 27.4], 'barcelona': [50.6, 26.8],
-  'rome': [53.4, 26.8], 'milan': [52.5, 24.7], 'vienna': [54.6, 23.1],
-  'zurich': [52.4, 23.5], 'stockholm': [55.0, 17.1], 'oslo': [53.0, 16.4],
-  'copenhagen': [53.5, 19.0], 'helsinki': [56.9, 16.6], 'brussels': [51.7, 22.5],
-  'lisbon': [47.5, 28.7], 'athens': [56.6, 28.9], 'istanbul': [58.0, 27.2],
-  'moscow': [60.4, 19.0], 'kyiv': [58.5, 21.9], 'warsaw': [55.8, 21.1],
-  'prague': [54.0, 22.2], 'budapest': [55.3, 23.2], 'bucharest': [57.8, 25.6],
-  'dubai': [65.4, 35.9], 'abu dhabi': [64.8, 36.5], 'riyadh': [62.9, 36.2],
-  'tel aviv': [59.7, 32.2], 'cairo': [58.7, 33.3], 'lagos': [51.0, 46.4],
-  'nairobi': [60.2, 50.4], 'johannesburg': [57.8, 64.5], 'cape town': [55.1, 68.8],
-  'accra': [50.2, 48.1], 'addis ababa': [60.7, 45.6],
-  'mumbai': [70.2, 39.4], 'delhi': [71.5, 34.3], 'bangalore': [71.6, 42.8],
-  'chennai': [72.3, 42.5], 'kolkata': [74.6, 37.6], 'karachi': [68.6, 36.3],
-  'dhaka': [75.1, 37.2], 'islamabad': [68.3, 33.1],
-  'new york': [29.4, 27.4], 'nyc': [29.4, 27.4], 'san francisco': [15.8, 29.0],
-  'los angeles': [17.2, 31.1], 'la': [17.2, 31.1], 'chicago': [25.7, 26.9],
-  'toronto': [27.9, 25.7], 'boston': [30.3, 26.4], 'miami': [27.8, 35.6],
-  'seattle': [16.2, 23.4], 'vancouver': [15.8, 22.6], 'washington': [28.6, 28.4],
-  'austin': [24.3, 33.5], 'denver': [22.2, 26.9], 'new orleans': [25.8, 33.9],
-  'atlanta': [26.9, 31.4], 'houston': [24.2, 33.1], 'san diego': [16.7, 30.0],
-  'portland': [16.4, 24.2], 'phoenix': [19.8, 30.3], 'dallas': [23.5, 31.5],
-  'mexico city': [22.5, 39.2],
-  'bogota': [29.1, 47.4], 'lima': [28.7, 56.7], 'buenos aires': [32.8, 68.5],
-  'santiago': [30.5, 67.0], 'sao paulo': [37.1, 62.5], 'rio de janeiro': [37.8, 62.0],
-  'singapore': [78.8, 49.3], 'kuala lumpur': [78.3, 47.6], 'bangkok': [77.9, 42.6],
-  'jakarta': [79.7, 53.4], 'ho chi minh': [79.6, 44.0], 'manila': [83.6, 41.9],
-  'taipei': [83.8, 36.1], 'hong kong': [81.7, 37.9], 'beijing': [82.3, 27.8],
-  'shanghai': [83.8, 32.9], 'seoul': [85.3, 29.2], 'tokyo': [88.8, 30.2],
-  'osaka': [87.6, 30.7], 'sydney': [92.0, 68.8], 'melbourne': [90.3, 70.4],
-  'brisbane': [91.2, 62.5], 'perth': [82.2, 67.5], 'auckland': [98.6, 70.5],
-};
-
-function lookupCity(locationStr) {
-  if (!locationStr) return null;
-  const low = locationStr.toLowerCase();
-  for (const [city, coords] of Object.entries(GEO_CITIES)) {
-    if (low.includes(city)) return coords;
-  }
-  return null;
-}
-
-// Simplified continent outlines [SVG path string, fillClass]
-// Coordinates in 0-1000 x 0-500 viewBox (equirectangular)
-const CONTINENT_PATHS = [
-  // North America
-  'M 38,68 C 115,40 225,38 320,78 L 365,118 L 322,158 L 285,182 L 262,198 L 248,212 L 225,212 C 198,192 172,162 155,128 C 128,98 58,88 38,68 Z',
-  // Greenland
-  'M 322,18 L 440,14 L 450,44 L 420,90 L 375,102 L 332,82 Z',
-  // South America
-  'M 295,242 C 342,222 385,248 410,295 L 422,365 L 395,432 L 358,478 L 315,488 L 272,472 L 245,422 L 228,355 L 232,288 Z',
-  // Europe
-  'M 460,72 C 508,55 562,55 612,75 C 638,92 645,118 625,140 L 590,158 L 562,162 L 538,155 L 512,162 L 482,155 L 462,135 L 452,102 Z',
-  // Africa
-  'M 462,162 L 542,152 L 598,160 L 658,192 L 672,248 L 668,348 L 642,435 L 595,512 L 548,525 L 490,520 L 452,475 L 432,388 L 438,272 Z',
-  // Asia (main + Russia)
-  'M 598,58 C 718,40 825,44 952,96 L 968,148 L 942,202 L 905,248 L 872,282 L 855,318 L 875,338 L 842,362 L 808,368 L 768,348 L 728,308 L 695,278 L 658,252 L 638,218 L 618,168 L 628,112 L 608,84 Z',
-  // Indian Subcontinent
-  'M 658,252 L 698,268 L 742,302 L 755,358 L 742,412 L 705,432 L 665,422 L 648,378 L 635,322 L 642,272 Z',
-  // SE Asia
-  'M 742,302 L 792,308 L 835,338 L 838,382 L 808,408 L 778,398 L 755,368 L 748,335 Z',
-  // Japan
-  'M 878,122 L 908,128 L 912,168 L 892,182 L 872,162 L 864,132 Z',
-  // Australia
-  'M 818,298 L 935,278 L 972,318 L 972,398 L 938,442 L 875,452 L 812,422 L 795,368 Z',
-  // New Zealand
-  'M 972,348 L 984,335 L 995,358 L 988,380 L 975,378 Z',
-  // UK/Ireland (small)
-  'M 465,75 L 492,68 L 498,95 L 482,102 L 465,92 Z',
-];
-
-// Pre-computed SVG string — continent paths never change so this is built once at startup
-const CONTINENT_PATHS_SVG = CONTINENT_PATHS.map(d => `<path d="${d}" class="geo-continent" />`).join('');
-
-// ─── State ────────────────────────────────────────────────────
-let contacts = [];
-let editingId = null;
-let detailId = null;
-let selectedColor = 0;
-let activeFilter = 'all';
-let activeSort = 'name';
-let activeView = 'cards';
-let searchQuery = '';
-
-// ─── Storage ──────────────────────────────────────────────────
-function load() {
-  try { contacts = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-  catch { contacts = []; }
-}
-
-function save() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(contacts));
-}
-
-// ─── Helpers ──────────────────────────────────────────────────
-function uid() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2);
-}
-
-function initials(name) {
-  return (name || '').trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';
-}
-
-function daysSince(dateStr) {
-  if (!dateStr) return Infinity;
-  return Math.floor((Date.now() - new Date(dateStr + 'T00:00:00').getTime()) / 86400000);
-}
-
-function daysUntil(dateStr) {
-  if (!dateStr) return Infinity;
-  return Math.floor((new Date(dateStr + 'T00:00:00').getTime() - Date.now()) / 86400000);
-}
-
-function friendlyDate(dateStr) {
-  if (!dateStr) return 'never';
-  const d = daysSince(dateStr);
-  if (d === 0) return 'today';
-  if (d === 1) return 'yesterday';
-  if (d < 7) return `${d}d ago`;
-  if (d < 30) return `${Math.floor(d/7)}w ago`;
-  if (d < 365) return `${Math.floor(d/30)}mo ago`;
-  return `${Math.floor(d/365)}y ago`;
-}
-
-function friendlyDue(dateStr) {
-  if (!dateStr) return '';
-  const d = daysUntil(dateStr);
-  if (d < 0) return `${Math.abs(d)}d overdue`;
-  if (d === 0) return 'due today';
-  if (d === 1) return 'due tomorrow';
-  if (d < 7) return `due in ${d}d`;
-  return `due ${dateStr}`;
-}
-
-function recencyColor(dateStr) {
-  const d = daysSince(dateStr);
-  if (d < 14) return '#2a9d8f';
-  if (d < 60) return '#f4a261';
-  return '#bbbbbb';
-}
-
-function esc(str) {
-  return (str || '').replace(/[&<>"']/g,
-    c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
-}
-
-function highlight(text, query) {
-  if (!query || !text) return esc(text || '');
-  const safe = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return esc(text).replace(new RegExp(`(${safe})`, 'gi'), '<mark>$1</mark>');
-}
-
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(el._t);
-  el._t = setTimeout(() => el.classList.remove('show'), 2000);
-}
-
-function todayStr() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function primaryExpertise(c) {
-  return (c.expertise || '').split(',')[0].trim() || 'Other';
-}
-
-function getMeetingStatus(key) {
-  return MEETING_STATUS[key] || { label: key, color: '#888' };
-}
-
-function getConvStatus(key) {
-  return CONV_STATUS[key] || { label: key, color: '#888' };
-}
-
-function statusPill(label, color, padding) {
-  return `<span class="status-pill" style="color:${color};border:1.5px solid ${color};font-family:var(--mono);font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;padding:${padding || '1px 5px'};white-space:nowrap">${label}</span>`;
-}
-
-function meetingItem(c) {
-  const ms = getMeetingStatus(c.meetingStatus);
-  const col = COLORS[c.colorIdx ?? 0];
-  return `
-    <div class="cal-upcoming-item" data-id="${c.id}">
-      <div class="cal-date-block ${c.meetingStatus}">
-        <div class="cal-date-month">${meetingMonthYear(c.meetingDate)}</div>
-        <div class="cal-date-day">${meetingDay(c.meetingDate)}</div>
-      </div>
-      <div class="cal-event-body">
-        <div class="cal-event-name" style="color:${col.bg}">${esc(c.name)}</div>
-        <div class="cal-event-meta">
-          ${statusPill(ms.label, ms.color)}
-          ${c.meetingTime ? `<span>${esc(c.meetingTime)}</span>` : ''}
-        </div>
-        ${c.meetingVenue ? `<div class="cal-event-venue">${esc(c.meetingVenue)}</div>` : ''}
-      </div>
-    </div>`;
-}
-
-function renderCurrentView() {
-  renderCurrentView();
-}
-
-function formatMeetingDate(dateStr) {
-  if (!dateStr) return '';
-  try {
-    const d = new Date(dateStr + 'T00:00:00');
-    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-  } catch(_) { return dateStr; }
-}
-
-function meetingMonthYear(dateStr) {
-  if (!dateStr) return '';
-  try {
-    const d = new Date(dateStr + 'T00:00:00');
-    return d.toLocaleDateString('en-GB', { month: 'short' }).toUpperCase();
-  } catch(_) { return ''; }
-}
-
-function meetingDay(dateStr) {
-  if (!dateStr) return '';
-  try {
-    const d = new Date(dateStr + 'T00:00:00');
-    return d.getDate();
-  } catch(_) { return ''; }
-}
-
-// ─── Filter + Sort ────────────────────────────────────────────
-function getFiltered() {
-  let list = [...contacts];
-  const q = searchQuery.toLowerCase().trim();
-
-  if (q) {
-    list = list.filter(c =>
-      [c.name, c.codeword, c.expertise, c.location, c.context, c.funFacts,
-       c.notes, c.email, c.stage, c.nextAction, c.howUseful,
-       c.convTopic, c.meetingVenue]
-        .some(f => (f || '').toLowerCase().includes(q))
-    );
-  }
-
-  switch (activeFilter) {
-    case 'action':      list = list.filter(c => (c.nextAction || c.actionType)); break;
-    case 'recent':      list = list.filter(c => daysSince(c.lastSpoken) <= 14); break;
-    case 'no-contact':  list = list.filter(c => daysSince(c.lastSpoken) > 60);  break;
-    case 'expertise':   list = list.filter(c => (c.expertise || '').trim());    break;
-    case 'no-codeword': list = list.filter(c => !(c.codeword || '').trim());    break;
-  }
-
-  switch (activeSort) {
-    case 'name':      list.sort((a,b) => (a.name||'').localeCompare(b.name||'')); break;
-    case 'name-desc': list.sort((a,b) => (b.name||'').localeCompare(a.name||'')); break;
-    case 'recent':    list.sort((a,b) => daysSince(a.lastSpoken) - daysSince(b.lastSpoken)); break;
-    case 'added':     list.sort((a,b) => (b.addedAt||0) - (a.addedAt||0)); break;
-    case 'action':
-      list.sort((a,b) => {
-        const da = a.actionDue ? new Date(a.actionDue).getTime() : Infinity;
-        const db = b.actionDue ? new Date(b.actionDue).getTime() : Infinity;
-        return da - db;
-      });
-      break;
-  }
-
-  return list;
-}
-
-// ─── View switching ───────────────────────────────────────────
-function switchView(view) {
-  activeView = view;
-  document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
-
-  const isCards = view === 'cards';
-  document.getElementById('headerSearch').style.display = isCards ? '' : 'none';
-  document.getElementById('sortBarWrap').style.display = isCards ? '' : 'none';
-  document.getElementById('grid').style.display = isCards ? '' : 'none';
-  document.getElementById('overviewContainer').style.display = view === 'overview' ? '' : 'none';
-  document.getElementById('mapContainer').style.display = view === 'map' ? '' : 'none';
-  document.getElementById('calendarContainer').style.display = view === 'calendar' ? '' : 'none';
-
-  renderCurrentView();
-}
-
-document.querySelector('.view-toggle').addEventListener('click', e => {
-  const btn = e.target.closest('.view-btn');
-  if (btn) switchView(btn.dataset.view);
-});
-
-// ─── Render grid ──────────────────────────────────────────────
-function renderGrid() {
-  const list = getFiltered();
-  const grid = document.getElementById('grid');
-  const q = searchQuery.toLowerCase().trim();
-
-  document.getElementById('countBadge').textContent =
-    contacts.length === 1 ? '1 contact' : `${contacts.length} contacts`;
-
-  if (contacts.length === 0) {
-    grid.innerHTML = `
-      <div class="empty">
-        <div class="empty-title">Your network starts here.</div>
-        <div class="empty-sub">Hit the + button to add your first person.</div>
-      </div>`;
-    return;
-  }
-
-  if (list.length === 0) {
-    grid.innerHTML = `
-      <div class="no-results">
-        <div class="no-results-title">Nothing found.</div>
-        <div class="no-results-sub">Try different words or clear the filter.</div>
-      </div>`;
-    return;
-  }
-
-  grid.innerHTML = list.map((c, i) => {
-    const col = COLORS[c.colorIdx ?? 0];
-    const stage = STAGE_LABELS[c.stage] || null;
-    const funFacts = (c.funFacts || '').split('\n').filter(f => f.trim());
-    const rColor = recencyColor(c.lastSpoken);
-
-    const hasAction = c.nextAction || c.actionType;
-    const isOverdue = c.actionDue && daysUntil(c.actionDue) < 0;
-    const dueLabel = friendlyDue(c.actionDue);
-
-    let actionBadge = '';
-    if (hasAction) {
-      const pill = c.actionType ? ACTION_LABELS[c.actionType] || 'Act' : 'Act';
-      const pillColor = isOverdue ? 'var(--red)' : 'var(--amber)';
-      actionBadge = `
-        <div class="card-action-badge${isOverdue ? ' urgent' : ''} open-detail" data-id="${c.id}">
-          <span class="action-type-pill" style="color:${pillColor}">${pill}</span>
-          <span class="action-text">${highlight(c.nextAction || (ACTION_FULL[c.actionType] || 'Action pending'), q)}</span>
-          ${dueLabel ? `<span class="action-due${isOverdue ? ' overdue' : ''}">${dueLabel}</span>` : ''}
-        </div>`;
-    }
-
-    let convBadge = '';
-    if (c.convStatus) {
-      const cs = getConvStatus(c.convStatus);
-      const platform = c.convPlatform ? CONV_PLATFORM_LABELS[c.convPlatform] || c.convPlatform : '';
-      convBadge = `
-        <div class="card-conv-badge ${c.convStatus} open-detail" data-id="${c.id}">
-          <span class="conv-status-pill" style="color:${cs.color}">${cs.label}</span>
-          ${platform ? `<span class="conv-platform-tag">${esc(platform)}</span>` : ''}
-          ${c.convTopic ? `<span class="conv-topic-text">${highlight(c.convTopic, q)}</span>` : ''}
-        </div>`;
-    }
-
-    let meetingBadge = '';
-    if (c.meetingStatus && c.meetingDate) {
-      const ms = getMeetingStatus(c.meetingStatus);
-      const dateStr = formatMeetingDate(c.meetingDate);
-      const timeStr = c.meetingTime ? ` · ${c.meetingTime}` : '';
-      const venueStr = c.meetingVenue ? ` · ${c.meetingVenue}` : '';
-      meetingBadge = `
-        <div class="card-meeting-badge ${c.meetingStatus} open-detail" data-id="${c.id}">
-          <span class="meeting-status-pill" style="color:${ms.color}">${ms.label}</span>
-          <span class="meeting-info-text">${esc(dateStr + timeStr + venueStr)}</span>
-        </div>`;
-    }
-
-    return `
-      <div class="card" data-id="${c.id}" style="animation-delay:${Math.min(i*0.025,0.25)}s">
-        <div class="card-stripe" style="background:${col.bg}"></div>
-        <div class="card-body">
-          <div class="card-top">
-            <div class="card-name editable" data-field="name" data-id="${c.id}">${highlight(c.name, q)}</div>
-            <button class="card-edit-btn" data-id="${c.id}">Edit</button>
-          </div>
-
-          <div class="${c.codeword ? 'card-codeword editable' : 'card-codeword-empty editable'}"
-            data-field="codeword" data-id="${c.id}"
-            ${c.codeword ? `style="color:${col.bg}"` : ''}>
-            ${c.codeword ? highlight(c.codeword, q) : '+ codeword'}
-          </div>
-
-          <div class="${c.expertise ? 'card-expertise editable' : 'card-expertise-empty editable'}"
-            data-field="expertise" data-id="${c.id}">
-            ${c.expertise ? highlight(c.expertise, q) : '+ expertise / role'}
-          </div>
-
-          ${c.location ? `<div class="card-location">${highlight(c.location, q)}</div>` : ''}
-
-          ${c.context ? `<div class="card-context open-detail" data-id="${c.id}">${highlight(c.context, q)}</div>` : ''}
-          ${funFacts.length ? `<div class="card-fact open-detail" data-id="${c.id}">${esc(funFacts[0])}</div>` : ''}
-
-          ${actionBadge}
-          ${convBadge}
-          ${meetingBadge}
-
-          <hr class="card-divider" />
-
-          <div class="card-footer">
-            <div class="card-date-wrap" data-date-id="${c.id}">
-              <div class="recency-dot" style="background:${rColor}"></div>
-              <span class="date-label">${friendlyDate(c.lastSpoken)}</span>
-              <input type="date" class="card-date-input" data-id="${c.id}" value="${c.lastSpoken || ''}" />
-            </div>
-            <button class="today-btn" data-id="${c.id}">Today</button>
-            ${stage ? `<span class="stage-tag" style="color:${stage.color}">${stage.label}</span>` : ''}
-          </div>
-        </div>
-      </div>`;
-  }).join('');
-
-  attachCardEvents(grid);
-}
-
-// ─── Card events ──────────────────────────────────────────────
-function attachCardEvents(grid) {
-  grid.querySelectorAll('.card').forEach(card => {
-    card.addEventListener('click', e => {
-      if (e.target.closest('.editable, .card-edit-btn, .card-date-wrap, .today-btn, .open-detail')) return;
-      openDetail(card.dataset.id);
-    });
-  });
-
-  grid.querySelectorAll('.open-detail').forEach(el => {
-    el.addEventListener('click', e => { e.stopPropagation(); openDetail(el.dataset.id); });
-  });
-
-  grid.querySelectorAll('.card-edit-btn').forEach(btn => {
-    btn.addEventListener('click', e => { e.stopPropagation(); openEdit(btn.dataset.id); });
-  });
-
-  grid.querySelectorAll('.editable').forEach(el => {
-    el.addEventListener('click', e => { e.stopPropagation(); startInlineEdit(el); });
-  });
-
-  grid.querySelectorAll('[data-date-id]').forEach(wrap => {
-    wrap.addEventListener('click', e => {
-      e.stopPropagation();
-      const input = wrap.querySelector('.card-date-input');
-      const label = wrap.querySelector('.date-label');
-      label.style.display = 'none';
-      input.style.display = '';
-      try { input.showPicker(); } catch(_) { input.focus(); }
-    });
-  });
-
-  grid.querySelectorAll('.card-date-input').forEach(input => {
-    input.addEventListener('change', e => {
-      e.stopPropagation();
-      const c = contacts.find(x => x.id === input.dataset.id);
-      if (c) { c.lastSpoken = input.value; save(); renderGrid(); toast('Saved'); }
-    });
-    input.addEventListener('blur', e => { e.stopPropagation(); renderGrid(); });
-  });
-
-  grid.querySelectorAll('.today-btn').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.stopPropagation();
-      const c = contacts.find(x => x.id === btn.dataset.id);
-      if (c) { c.lastSpoken = todayStr(); save(); renderGrid(); toast('Marked today'); }
-    });
-  });
-}
-
-// ─── Inline edit ──────────────────────────────────────────────
-function startInlineEdit(el) {
-  if (el.dataset.editing) return;
-  el.dataset.editing = '1';
-
-  const id = el.dataset.id;
-  const field = el.dataset.field;
-  const c = contacts.find(x => x.id === id);
-  if (!c) { delete el.dataset.editing; return; }
-
-  const originalVal = c[field] || '';
-  const originalHTML = el.innerHTML;
-
-  const isName = field === 'name';
-  const isMono = field === 'codeword';
-
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.value = originalVal;
-  input.className = 'inline-input' + (isName ? ' inline-name' : isMono ? ' inline-mono' : ' inline-small');
-  if (field === 'name') input.maxLength = 80;
-  if (field === 'codeword') input.maxLength = 40;
-  if (field === 'expertise') input.maxLength = 100;
-
-  el.innerHTML = '';
-  el.appendChild(input);
-  input.focus();
-  input.select();
-
-  let committed = false;
-
-  function commit() {
-    if (committed) return;
-    committed = true;
-    const val = input.value.trim();
-    if (field === 'name' && !val) {
-      el.innerHTML = originalHTML;
-      delete el.dataset.editing;
-      return;
-    }
-    if (val !== originalVal) { c[field] = val; save(); toast('Saved'); }
-    delete el.dataset.editing;
-    renderGrid();
-  }
-
-  input.addEventListener('blur', commit);
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
-    if (e.key === 'Escape') { committed = true; el.innerHTML = originalHTML; delete el.dataset.editing; }
-  });
-}
-
-// ─── Overview ─────────────────────────────────────────────────
-function renderOverview() {
-  const el = document.getElementById('overviewContainer');
-
-  const total = contacts.length;
-  const recent = contacts.filter(c => daysSince(c.lastSpoken) <= 14).length;
-  const overdue = contacts.filter(c => daysSince(c.lastSpoken) > 60).length;
-  const withAction = contacts.filter(c => c.nextAction || c.actionType).length;
-
-  // Upcoming meetings
-  const todayIso = todayStr();
-  const upcomingMeetings = contacts
-    .filter(c => c.meetingDate && c.meetingStatus && c.meetingDate >= todayIso)
-    .sort((a, b) => (a.meetingDate > b.meetingDate ? 1 : -1))
-    .slice(0, 5);
-
-  // Pending actions sorted by due date (overdue first, then by date, then undated)
-  const actions = contacts
-    .filter(c => c.nextAction || c.actionType)
-    .sort((a, b) => {
-      const da = a.actionDue ? new Date(a.actionDue).getTime() : Infinity;
-      const db = b.actionDue ? new Date(b.actionDue).getTime() : Infinity;
-      return da - db;
-    });
-
-  // Stage breakdown
-  const stageCounts = {};
-  Object.keys(STAGE_LABELS).forEach(k => stageCounts[k] = 0);
-  contacts.forEach(c => { if (c.stage && stageCounts[c.stage] !== undefined) stageCounts[c.stage]++; });
-  const maxStage = Math.max(1, ...Object.values(stageCounts));
-
-  // Recently spoken (top 6, with lastSpoken set)
-  const recentlySeen = [...contacts]
-    .filter(c => c.lastSpoken)
-    .sort((a, b) => daysSince(a.lastSpoken) - daysSince(b.lastSpoken))
-    .slice(0, 6);
-
-  // How they can help (contacts with howUseful filled)
-  const useful = contacts.filter(c => (c.howUseful || '').trim());
-
-  el.innerHTML = `
-    <div class="overview">
-
-      <div class="ov-section">
-        <div class="ov-title">Network at a Glance</div>
-        <div class="stat-row">
-          <div class="stat-block">
-            <div class="stat-num">${total}</div>
-            <div class="stat-label">Total</div>
-          </div>
-          <div class="stat-block">
-            <div class="stat-num" style="color:#2a9d8f">${recent}</div>
-            <div class="stat-label">Spoke recently</div>
-          </div>
-          <div class="stat-block">
-            <div class="stat-num" style="color:#888">${overdue}</div>
-            <div class="stat-label">Overdue (60d+)</div>
-          </div>
-          <div class="stat-block">
-            <div class="stat-num" style="color:#d4820a">${withAction}</div>
-            <div class="stat-label">Actions pending</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="ov-section">
-        <div class="ov-title">Relationship Stages</div>
-        <div class="stage-breakdown">
-          ${Object.entries(STAGE_LABELS).map(([key, st]) => `
-            <div class="stage-row">
-              <div class="stage-row-label">${st.label}</div>
-              <div class="stage-bar-wrap">
-                <div class="stage-bar" style="width:${Math.round((stageCounts[key]/maxStage)*100)}%;background:${st.color}"></div>
-              </div>
-              <div class="stage-count">${stageCounts[key]}</div>
-            </div>`).join('')}
-        </div>
-      </div>
-
-      <div class="ov-section">
-        <div class="ov-title">Pending Actions</div>
-        ${actions.length ? `
-          <div class="action-list">
-            ${actions.map(c => {
-              const col = COLORS[c.colorIdx ?? 0];
-              const isOv = c.actionDue && daysUntil(c.actionDue) < 0;
-              const dueStr = friendlyDue(c.actionDue);
-              const typeLabel = ACTION_FULL[c.actionType] || (c.actionType ? c.actionType : 'Action');
-              return `
-                <div class="action-item" data-id="${c.id}">
-                  <div class="action-item-stripe" style="background:${col.bg}"></div>
-                  <div class="action-item-body">
-                    <div class="action-item-who">${esc(c.name)}</div>
-                    <div class="action-item-what">
-                      ${c.actionType ? `<span class="action-type-pill" style="color:${isOv ? 'var(--red)' : 'var(--amber)'};margin-right:6px">${ACTION_LABELS[c.actionType] || c.actionType}</span>` : ''}
-                      ${esc(c.nextAction || typeLabel)}
-                    </div>
-                    <div class="action-item-meta">
-                      ${dueStr ? `<span class="action-item-due${isOv ? ' overdue' : ''}">${dueStr}</span>` : ''}
-                      ${c.expertise ? `<span style="font-family:var(--mono);font-size:9px;color:var(--ink3)">${esc(c.expertise.split(',')[0])}</span>` : ''}
-                    </div>
-                    ${c.howUseful ? `<div class="action-item-useful">${esc(c.howUseful)}</div>` : ''}
-                  </div>
-                </div>`;
-            }).join('')}
-          </div>` : '<div class="ov-empty">No pending actions. Add one by editing a contact.</div>'}
-      </div>
-
-      <div class="ov-section">
-        <div class="ov-title">Recently Spoken To</div>
-        ${recentlySeen.length ? `
-          <div class="recent-list">
-            ${recentlySeen.map(c => {
-              const col = COLORS[c.colorIdx ?? 0];
-              return `
-                <div class="recent-item" data-id="${c.id}">
-                  <div class="recent-dot" style="background:${recencyColor(c.lastSpoken)}"></div>
-                  <div class="recent-name">${esc(c.name)}</div>
-                  <div class="recent-date">${friendlyDate(c.lastSpoken)}</div>
-                </div>`;
-            }).join('')}
-          </div>` : '<div class="ov-empty">No conversations logged yet.</div>'}
-      </div>
-
-      ${upcomingMeetings.length ? `
-        <div class="ov-section">
-          <div class="ov-title">Upcoming Meetings</div>
-          <div class="cal-upcoming-list">
-            ${upcomingMeetings.map(meetingItem).join('')}
-          </div>
-        </div>` : ''}
-
-      ${useful.length ? `
-        <div class="ov-section">
-          <div class="ov-title">How Your Network Can Help You</div>
-          <div class="useful-list">
-            ${useful.map(c => `
-              <div class="useful-item" data-id="${c.id}">
-                <div class="useful-who">${esc(c.name)}</div>
-                <div class="useful-text">${esc(c.howUseful)}</div>
-              </div>`).join('')}
-          </div>
-        </div>` : ''}
-
-    </div>`;
-
-  // Click listeners for overview items
-  el.querySelectorAll('[data-id]').forEach(item => {
-    item.addEventListener('click', () => openDetail(item.dataset.id));
-  });
-}
-
-// ─── Geographic World Map ──────────────────────────────────────
-function renderMap() {
-  const container = document.getElementById('mapContainer');
-
-  // Group contacts by city coords. Contacts without a recognised location go to a "?" pile
-  const pinGroups = {}; // key: "x,y" → [contacts]
-  const unmapped = [];
-
-  contacts.forEach(c => {
-    const coords = lookupCity(c.location);
-    if (coords) {
-      const key = coords.join(',');
-      if (!pinGroups[key]) pinGroups[key] = { coords, list: [] };
-      pinGroups[key].list.push(c);
-    } else {
-      unmapped.push(c);
-    }
-  });
-
-  if (contacts.length === 0) {
-    container.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--ink3);font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:1px">
-        No contacts to map yet
-      </div>`;
-    return;
-  }
-
-  // Scale pct coords → SVG pixels
-  // x = (lon+180)/360*100, y = (90-lat)/180*100 → SVG pixel space
-  const VW = 1000, VH = 500;
-  const toSVG = (px, py) => [px * VW / 100, py * VH / 100];
-
-  let pinsSVG = '';
-
-  Object.values(pinGroups).forEach(({ coords, list }) => {
-    const [px, py] = toSVG(coords[0], coords[1]);
-    const n = list.length;
-    const hasAction = list.some(c => c.nextAction || c.actionType);
-    const hasMeeting = list.some(c => c.meetingStatus && c.meetingDate);
-    const col = COLORS[list[0].colorIdx ?? 0];
-    const r = n === 1 ? 9 : Math.min(14, 9 + n);
-    const names = list.map(c => c.name).join(', ');
-    const cityName = list[0].location || '';
-
-    pinsSVG += `
-      <g class="geo-pin-group" data-ids="${list.map(c => c.id).join(',')}" data-city="${esc(cityName)}">
-        <title>${esc(names)}${cityName ? '\n' + esc(cityName) : ''}</title>
-        <circle cx="${px}" cy="${py}" r="${r + 3}" class="geo-pin-bg" />
-        <circle cx="${px}" cy="${py}" r="${r}" fill="${col.bg}" class="geo-pin-dot" stroke="none" />
-        <text x="${px}" y="${py}" text-anchor="middle" dominant-baseline="middle"
-          font-size="${n > 1 ? 9 : 8}" font-weight="900" fill="white"
-          font-family="Georgia,serif" pointer-events="none">
-          ${n > 1 ? n : initials(list[0].name)}
-        </text>
-        ${hasAction ? `<circle cx="${px + r + 1}" cy="${py - r - 1}" r="4" class="geo-pin-action" />` : ''}
-        ${hasMeeting ? `<circle cx="${px + r + 1}" cy="${py + r + 1}" r="4" class="geo-pin-meeting-dot" />` : ''}
-      </g>`;
-  });
-
-  // Unmapped contacts listed at bottom-right as text
-  let unmappedSVG = '';
-  if (unmapped.length > 0) {
-    unmappedSVG = `
-      <rect x="${VW - 190}" y="${VH - unmapped.length * 14 - 26}" width="188" height="${unmapped.length * 14 + 20}"
-        fill="rgba(240,235,224,0.92)" stroke="#c8c3b8" stroke-width="1" />
-      <text x="${VW - 96}" y="${VH - unmapped.length * 14 - 12}" text-anchor="middle"
-        font-size="8" fill="var(--ink3)" font-family="'Courier New',monospace"
-        font-weight="700" letter-spacing="0.5">NO LOCATION SET</text>
-      ${unmapped.map((c, i) => `
-        <text x="${VW - 182}" y="${VH - unmapped.length * 14 + i * 14 + 2}"
-          font-size="9" fill="var(--ink2)" font-family="Georgia,serif">${esc(c.name)}</text>
-      `).join('')}`;
-  }
-
-  container.innerHTML = `
-    <svg viewBox="0 0 ${VW} ${VH}" preserveAspectRatio="xMidYMid meet"
-         style="display:block;width:100%;height:100%;background:#e8e4db">
-      ${continents}
-      ${pinsSVG}
-      ${unmappedSVG}
-    </svg>
-    <div class="geo-map-legend">
-      <span><span style="width:10px;height:10px;border-radius:50%;background:#d4820a;display:inline-block"></span> Action pending</span>
-      <span><span style="width:10px;height:10px;border-radius:50%;background:#2a6049;display:inline-block"></span> Meeting</span>
-      <span style="color:var(--ink3)">Click pin to view</span>
-    </div>`;
-
-  container.style.position = 'relative';
-
-  container.querySelectorAll('.geo-pin-group').forEach(pin => {
-    pin.addEventListener('click', () => {
-      const ids = pin.dataset.ids.split(',').filter(Boolean);
-      openDetail(ids[0]);
-    });
-
-    pin.addEventListener('mouseenter', e => {
-      const ids = pin.dataset.ids.split(',').filter(Boolean);
-      const list = ids.map(id => contacts.find(c => c.id === id)).filter(Boolean);
-      const tt = document.getElementById('mapTooltip');
-      tt.innerHTML = list.map(c =>
-        `<strong>${esc(c.name)}</strong>` +
-        (c.expertise ? `<span style="color:#aaa"> · ${esc(c.expertise.split(',')[0])}</span>` : '')
-      ).join('<br>') + (pin.dataset.city ? `<br><span style="color:#aaa">${esc(pin.dataset.city)}</span>` : '');
-      tt.style.display = 'block';
-    });
-
-    pin.addEventListener('mousemove', e => {
-      const tt = document.getElementById('mapTooltip');
-      tt.style.left = (e.clientX + 14) + 'px';
-      tt.style.top = (e.clientY - 10) + 'px';
-    });
-
-    pin.addEventListener('mouseleave', () => {
-      document.getElementById('mapTooltip').style.display = 'none';
-    });
-  });
-}
-
-// Re-render map on resize
-let mapResizeTimer;
-window.addEventListener('resize', () => {
-  if (activeView === 'map') {
-    clearTimeout(mapResizeTimer);
-    mapResizeTimer = setTimeout(renderMap, 150);
-  }
-});
-
-// ─── Calendar ──────────────────────────────────────────────────
-let calendarDate = new Date();
-
-function renderCalendar() {
-  const el = document.getElementById('calendarContainer');
-
-  const year = calendarDate.getFullYear();
-  const month = calendarDate.getMonth(); // 0-indexed
-
-  const monthName = calendarDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
-
-  // Gather all contacts with meetings
-  const withMeetings = contacts.filter(c => c.meetingDate && c.meetingStatus);
-
-  // Build month grid
-  const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const startOffset = firstDay === 0 ? 6 : firstDay - 1; // Monday-first
-
-  const todayIso = todayStr();
-
-  const eventsByDate = {};
-  withMeetings.forEach(c => {
-    if (!eventsByDate[c.meetingDate]) eventsByDate[c.meetingDate] = [];
-    eventsByDate[c.meetingDate].push(c);
-  });
-
-  const dayHeaders = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
-    .map(d => `<div class="cal-day-header">${d}</div>`).join('');
-
-  let cells = '';
-  for (let i = 0; i < startOffset; i++) cells += `<div class="cal-cell empty"></div>`;
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const dayEvents = eventsByDate[dateKey] || [];
-    cells += `<div class="cal-cell${dateKey === todayIso ? ' today' : ''}">
-      <div class="cal-day-num">${d}</div>
-      ${dayEvents.map(c =>
-        `<div class="cal-event ${c.meetingStatus}" data-id="${c.id}">${esc(c.name.split(' ')[0])}</div>`
-      ).join('')}
-    </div>`;
-  }
-
-  const upcomingAll = [...withMeetings]
-    .sort((a, b) => (a.meetingDate > b.meetingDate ? 1 : a.meetingDate < b.meetingDate ? -1 : 0));
-  const futureUpcoming = upcomingAll.filter(c => c.meetingDate >= todayIso);
-  const pastMeetings = upcomingAll.filter(c => c.meetingDate < todayIso).slice(-3).reverse();
-
-  el.innerHTML = `
-    <div class="calendar-wrap">
-      <div class="cal-nav">
-        <button class="cal-nav-btn" id="calPrev">&lt; Prev</button>
-        <div class="cal-month-title">${monthName}</div>
-        <button class="cal-nav-btn" id="calNext">Next &gt;</button>
-      </div>
-
-      <div class="cal-legend">
-        <span><span style="display:inline-block;width:10px;height:3px;background:var(--amber)"></span> Potential</span>
-        <span><span style="display:inline-block;width:10px;height:3px;background:var(--green)"></span> Confirmed</span>
-      </div>
-
-      <div class="cal-grid">
-        ${dayHeaders}
-        ${cells}
-      </div>
-
-      ${futureUpcoming.length ? `
-        <div class="cal-section-title">Upcoming Meetings</div>
-        <div class="cal-upcoming-list">
-          ${futureUpcoming.map(meetingItem).join('')}
-        </div>` : `<div style="font-size:12px;color:var(--ink3);font-style:italic;margin-bottom:20px">No upcoming meetings. Add one by editing a contact.</div>`}
-
-      ${pastMeetings.length ? `
-        <div class="cal-section-title">Recent Past</div>
-        <div class="cal-upcoming-list">
-          ${pastMeetings.map(meetingItem).join('')}
-        </div>` : ''}
-    </div>`;
-
-  document.getElementById('calPrev').addEventListener('click', () => {
-    calendarDate = new Date(year, month - 1, 1);
-    renderCalendar();
-  });
-  document.getElementById('calNext').addEventListener('click', () => {
-    calendarDate = new Date(year, month + 1, 1);
-    renderCalendar();
-  });
-
-  el.querySelectorAll('.cal-event[data-id], .cal-upcoming-item[data-id]').forEach(item => {
-    item.addEventListener('click', e => { e.stopPropagation(); openDetail(item.dataset.id); });
-  });
-}
-
-// ─── Color row ────────────────────────────────────────────────
-function buildColorRow() {
-  const row = document.getElementById('colorRow');
-  row.innerHTML = COLORS.map((c, i) => `
-    <div class="color-swatch${i === selectedColor ? ' selected' : ''}" data-idx="${i}" style="background:${c.bg}"></div>
-  `).join('');
-  row.querySelectorAll('.color-swatch').forEach(sw => {
-    sw.addEventListener('click', () => { selectedColor = +sw.dataset.idx; buildColorRow(); });
-  });
-}
-
-// ─── Edit modal ───────────────────────────────────────────────
-function openEdit(id) {
-  editingId = id || null;
-  const c = id ? contacts.find(x => x.id === id) : null;
-
-  document.getElementById('editModalTitle').textContent = c ? 'Edit Contact' : 'New Contact';
-  document.getElementById('deleteBtn').style.display = c ? '' : 'none';
-
-  selectedColor = c?.colorIdx ?? 0;
-  buildColorRow();
-
-  const fields = ['name','codeword','expertise','location','context','lastSpoken','stage',
-    'painPoints','goals','funFacts','email','phone','linkedin','twitter','instagram',
-    'website','notes','actionType','nextAction','actionDue','howUseful',
-    'convStatus','convPlatform','convTopic',
-    'meetingStatus','meetingDate','meetingTime','meetingVenue'];
-  fields.forEach(f => {
-    const el = document.getElementById('f-' + f);
-    if (el) el.value = c ? (c[f] || '') : '';
-  });
-
-  if (!c) document.getElementById('f-lastSpoken').value = todayStr();
-
-  closeDetail();
-  document.getElementById('editOverlay').classList.add('open');
-  setTimeout(() => document.getElementById('f-name').focus(), 320);
-}
-
-function closeEdit() {
-  document.getElementById('editOverlay').classList.remove('open');
-  editingId = null;
-}
-
-document.getElementById('saveBtn').addEventListener('click', () => {
-  const name = document.getElementById('f-name').value.trim();
-  if (!name) {
-    const el = document.getElementById('f-name');
-    el.focus();
-    el.style.outline = '2px solid var(--red)';
-    setTimeout(() => el.style.outline = '', 1500);
-    toast('Name is required');
-    return;
-  }
-
-  const fields = ['name','codeword','expertise','location','context','lastSpoken','stage',
-    'painPoints','goals','funFacts','email','phone','linkedin','twitter','instagram',
-    'website','notes','actionType','nextAction','actionDue','howUseful',
-    'convStatus','convPlatform','convTopic',
-    'meetingStatus','meetingDate','meetingTime','meetingVenue'];
-  const data = {};
-  fields.forEach(f => { data[f] = document.getElementById('f-' + f).value.trim(); });
-  data.colorIdx = selectedColor;
-
-  if (editingId) {
-    const idx = contacts.findIndex(c => c.id === editingId);
-    contacts[idx] = { ...contacts[idx], ...data };
-    toast('Contact updated');
-  } else {
-    contacts.push({ id: uid(), addedAt: Date.now(), ...data });
-    toast('Contact added');
-  }
-
-  save();
-  closeEdit();
-  renderCurrentView();
-});
-
-document.getElementById('cancelBtn').addEventListener('click', closeEdit);
-document.getElementById('editClose').addEventListener('click', closeEdit);
-document.getElementById('editOverlay').addEventListener('click', e => {
-  if (e.target === document.getElementById('editOverlay')) closeEdit();
-});
-
-// ─── Delete ───────────────────────────────────────────────────
-document.getElementById('deleteBtn').addEventListener('click', () => {
-  const c = contacts.find(x => x.id === editingId);
-  document.getElementById('confirmText').textContent = `"${c?.name}" will be permanently removed.`;
-  document.getElementById('confirmOverlay').classList.add('open');
-});
-
-document.getElementById('confirmCancel').addEventListener('click', () => {
-  document.getElementById('confirmOverlay').classList.remove('open');
-});
-
-document.getElementById('confirmOk').addEventListener('click', () => {
-  contacts = contacts.filter(c => c.id !== editingId);
-  save();
-  document.getElementById('confirmOverlay').classList.remove('open');
-  closeEdit();
-  renderCurrentView();
-  toast('Deleted');
-});
-
-// ─── Detail modal ─────────────────────────────────────────────
-function openDetail(id) {
-  detailId = id;
-  const c = contacts.find(x => x.id === id);
-  if (!c) return;
-
-  const col = COLORS[c.colorIdx ?? 0];
-  const stage = STAGE_LABELS[c.stage] || null;
-  const funFacts = (c.funFacts || '').split('\n').filter(f => f.trim());
-  const expertiseTags = (c.expertise || '').split(',').map(s => s.trim()).filter(Boolean);
-
-  const contactItems = [
-    { label: 'Email',     val: c.email,     href: c.email ? `mailto:${c.email}` : null },
-    { label: 'Phone',     val: c.phone,     href: c.phone ? `tel:${c.phone}`    : null },
-    { label: 'LinkedIn',  val: c.linkedin  },
-    { label: 'X/Twitter', val: c.twitter   },
-    { label: 'Instagram', val: c.instagram },
-    { label: 'Website',   val: c.website   },
-  ].filter(x => x.val);
-
-  const hasAction = c.nextAction || c.actionType;
-  const isOv = c.actionDue && daysUntil(c.actionDue) < 0;
-
-  document.getElementById('detailBody').innerHTML = `
-    <div class="detail-hero" style="border-left:6px solid ${col.bg}">
-      <div class="detail-avatar" style="background:${col.bg}22;color:${col.bg}">${initials(c.name)}</div>
-      <div>
-        <div class="detail-name">${esc(c.name)}</div>
-        ${c.codeword ? `<div class="detail-codeword" style="color:${col.bg}">${esc(c.codeword)}</div>` : ''}
-        ${c.expertise ? `<div style="font-size:13px;color:var(--ink2);margin-top:2px">${esc(c.expertise)}</div>` : ''}
-        ${c.location ? `<div style="font-family:var(--mono);font-size:10px;color:var(--ink3);margin-top:4px">${esc(c.location)}</div>` : ''}
-        ${stage ? `<div class="stage-tag" style="color:${stage.color};display:inline-block;margin-top:6px">${stage.label}</div>` : ''}
-      </div>
+<!-- ══ COLOR GUIDE MODAL ══ -->
+<div class="modal-overlay" id="colorGuideOverlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Color Guide</div>
+      <button class="modal-close" id="colorGuideClose">x</button>
     </div>
-
-    ${hasAction ? `
-    <div class="detail-action-block${isOv ? ' urgent' : ''}">
-      <div class="detail-section-title" style="margin-bottom:6px">Next Action</div>
-      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px">
-        ${c.actionType ? `<span class="action-type-pill" style="color:${isOv ? 'var(--red)' : 'var(--amber)'}">${ACTION_FULL[c.actionType] || c.actionType}</span>` : ''}
-        ${c.actionDue ? `<span class="action-due${isOv ? ' overdue' : ''}">${friendlyDue(c.actionDue)} (${c.actionDue})</span>` : ''}
-      </div>
-      ${c.nextAction ? `<div class="detail-text">${esc(c.nextAction)}</div>` : ''}
-      ${c.howUseful ? `
-        <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--faint)">
-          <div class="detail-section-title" style="margin-bottom:4px">How they can help you</div>
-          <div class="detail-text">${esc(c.howUseful)}</div>
-        </div>` : ''}
-    </div>` : (c.howUseful ? `
-    <div class="detail-section">
-      <div class="detail-section-title">How They Can Help You</div>
-      <div class="detail-text">${esc(c.howUseful)}</div>
-    </div>` : '')}
-
-    ${(() => {
-      if (!c.convStatus) return '';
-      const cs = getConvStatus(c.convStatus);
-      const platform = c.convPlatform ? CONV_PLATFORM_LABELS[c.convPlatform] || c.convPlatform : '';
-      return `
-        <div class="detail-conv-block ${c.convStatus}">
-          <div class="detail-section-title" style="margin-bottom:6px">Conversation</div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
-            ${statusPill(cs.label, cs.color, '2px 6px')}
-            ${platform ? `<span style="font-family:var(--mono);font-size:9px;color:var(--ink3);background:var(--faint);padding:2px 6px">${esc(platform)}</span>` : ''}
-          </div>
-          ${c.convTopic ? `<div class="detail-text">${esc(c.convTopic)}</div>` : ''}
-        </div>`;
-    })()}
-
-    ${(() => {
-      if (!c.meetingStatus || !c.meetingDate) return '';
-      const ms = getMeetingStatus(c.meetingStatus);
-      return `
-        <div class="detail-meeting-block ${c.meetingStatus}">
-          <div class="detail-section-title" style="margin-bottom:6px">Meeting</div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
-            ${statusPill(ms.label, ms.color, '2px 6px')}
-            <span style="font-family:var(--mono);font-size:11px;color:var(--ink2)">${esc(formatMeetingDate(c.meetingDate))}${c.meetingTime ? ' · ' + esc(c.meetingTime) : ''}</span>
-          </div>
-          ${c.meetingVenue ? `<div class="detail-text" style="font-style:italic">${esc(c.meetingVenue)}</div>` : ''}
-        </div>`;
-    })()}
-
-    ${c.context ? `
-    <div class="detail-section">
-      <div class="detail-section-title">How You Met</div>
-      <div class="detail-text">${esc(c.context)}</div>
-    </div>` : ''}
-
-    <div class="detail-section">
-      <div class="detail-section-title">Last Spoken</div>
-      <div class="detail-text" style="display:flex;align-items:center;gap:8px">
-        <div style="width:8px;height:8px;border-radius:50%;background:${recencyColor(c.lastSpoken)};flex-shrink:0"></div>
-        ${friendlyDate(c.lastSpoken)}
-        ${c.lastSpoken ? `<span style="color:var(--ink3);font-size:12px;font-family:var(--mono)">${c.lastSpoken}</span>` : ''}
-      </div>
+    <div class="color-guide-body" id="colorGuideBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="colorGuideSave" onclick="closeColorGuide()">Save &amp; Close</button>
     </div>
+  </div>
+</div>
 
-    ${c.painPoints ? `
-    <div class="detail-section">
-      <div class="detail-section-title">Pain Points</div>
-      <div class="detail-text">${esc(c.painPoints)}</div>
-    </div>` : ''}
-
-    ${c.goals ? `
-    <div class="detail-section">
-      <div class="detail-section-title">Goals and Ambitions</div>
-      <div class="detail-text">${esc(c.goals)}</div>
-    </div>` : ''}
-
-    ${expertiseTags.length ? `
-    <div class="detail-section">
-      <div class="detail-section-title">Expertise</div>
-      <div class="detail-chips">
-        ${expertiseTags.map(t => `<span class="detail-chip" style="color:${col.bg}">${esc(t)}</span>`).join('')}
-      </div>
-    </div>` : ''}
-
-    ${funFacts.length ? `
-    <div class="detail-section">
-      <div class="detail-section-title">Fun Facts and Conversation Anchors</div>
-      <ul class="fun-facts-list">
-        ${funFacts.map(f => `<li>${esc(f)}</li>`).join('')}
-      </ul>
-    </div>` : ''}
-
-    ${contactItems.length ? `
-    <div class="detail-section">
-      <div class="detail-section-title">Contact and Socials</div>
-      <div class="contact-list">
-        ${contactItems.map(item => `
-          <div class="contact-item">
-            <span class="contact-label-tag">${item.label}</span>
-            <span class="contact-val">
-              ${item.href ? `<a href="${esc(item.href)}">${esc(item.val)}</a>` : esc(item.val)}
-            </span>
-          </div>`).join('')}
-      </div>
-    </div>` : ''}
-
-    ${c.notes ? `
-    <div class="detail-section">
-      <div class="detail-section-title">Notes</div>
-      <div class="detail-text">${esc(c.notes)}</div>
-    </div>` : ''}
-  `;
-
-  document.getElementById('detailOverlay').classList.add('open');
-}
-
-function closeDetail() {
-  document.getElementById('detailOverlay').classList.remove('open');
-  detailId = null;
-}
-
-document.getElementById('detailClose').addEventListener('click', closeDetail);
-document.getElementById('detailOverlay').addEventListener('click', e => {
-  if (e.target === document.getElementById('detailOverlay')) closeDetail();
-});
-document.getElementById('detailEditBtn').addEventListener('click', () => {
-  const id = detailId; closeDetail(); openEdit(id);
-});
-
-// ─── FAB ──────────────────────────────────────────────────────
-document.getElementById('fabBtn').addEventListener('click', () => openEdit(null));
-
-// ─── Search ───────────────────────────────────────────────────
-const searchInput = document.getElementById('searchInput');
-const searchClear = document.getElementById('searchClear');
-
-searchInput.addEventListener('input', () => {
-  searchQuery = searchInput.value;
-  searchClear.classList.toggle('visible', searchQuery.length > 0);
-  renderGrid();
-});
-
-searchClear.addEventListener('click', () => {
-  searchInput.value = '';
-  searchQuery = '';
-  searchClear.classList.remove('visible');
-  renderGrid();
-  searchInput.focus();
-});
-
-// ─── Filters ──────────────────────────────────────────────────
-document.getElementById('filtersWrap').addEventListener('click', e => {
-  const chip = e.target.closest('.filter-chip');
-  if (!chip) return;
-  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-  chip.classList.add('active');
-  activeFilter = chip.dataset.filter;
-  renderGrid();
-});
-
-// ─── Sort ─────────────────────────────────────────────────────
-document.querySelector('.sort-bar').addEventListener('click', e => {
-  const btn = e.target.closest('.sort-btn');
-  if (!btn) return;
-  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  activeSort = btn.dataset.sort;
-  renderGrid();
-});
-
-// ─── Keyboard ─────────────────────────────────────────────────
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    if (document.getElementById('confirmOverlay').classList.contains('open')) {
-      document.getElementById('confirmOverlay').classList.remove('open');
-    } else if (document.getElementById('editOverlay').classList.contains('open')) {
-      closeEdit();
-    } else if (document.getElementById('detailOverlay').classList.contains('open')) {
-      closeDetail();
-    }
-  }
-  if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); searchInput.focus(); searchInput.select(); }
-  if ((e.metaKey || e.ctrlKey) && e.key === 'n') { e.preventDefault(); openEdit(null); }
-});
-
-// ─── Seed demo data ───────────────────────────────────────────
-function seedDemoData() {
-  const demos = [
-    {
-      name: 'Maya Chen',
-      codeword: 'Rocket Maya',
-      expertise: 'Growth, B2B SaaS, GTM',
-      location: 'San Francisco, CA',
-      context: 'Met at SaaStr Annual 2024. Sat at the same table during the GTM workshop — she had the best questions.',
-      lastSpoken: '2026-04-20',
-      stage: 'active',
-      painPoints: 'Struggling to break into enterprise deals with a PLG motion. Team is too small for a full sales hire.',
-      goals: 'Wants to hit $3M ARR by EOY, exploring partnerships as a growth lever.',
-      funFacts: 'Climbed Kilimanjaro last year\nObsessed with specialty coffee — hand grinder at her desk\nFormerly a jazz drummer\nNever misses a Formula 1 race',
-      email: 'maya@example.com',
-      linkedin: 'linkedin.com/in/mayachen',
-      twitter: '@mayabuilds',
-      colorIdx: 0,
-      actionType: 'intro',
-      nextAction: 'Intro her to Jordan — he needs GTM help and she loves community-led growth',
-      actionDue: '2026-05-15',
-      howUseful: 'Deep PLG expertise, knows every growth hacker in SaaS, can advise on Series A positioning',
-      convStatus: 'follow-up',
-      convPlatform: 'linkedin',
-      convTopic: 'Discussing potential co-marketing around her Series A announcement',
-      meetingStatus: 'confirmed',
-      meetingDate: '2026-05-20',
-      meetingTime: '14:00',
-      meetingVenue: 'Blue Bottle Coffee, SOMA',
-    },
-    {
-      name: 'Jordan Okafor',
-      codeword: 'DevRel Jordan',
-      expertise: 'Developer Relations, APIs, Community',
-      location: 'London, UK',
-      context: 'DMs on X after I wrote a thread about onboarding flows — he had great counterpoints.',
-      lastSpoken: '2026-03-05',
-      stage: 'warm',
-      painPoints: 'Burning out on conference travel. Wants to do more async community building.',
-      goals: 'Building a newsletter to own his audience outside of any single platform.',
-      funFacts: 'Has a podcast with 12k listeners\nCooks Nigerian dishes every Sunday\nLearning Rust for fun\nOwns too many mechanical keyboards',
-      linkedin: 'linkedin.com/in/jordanokafor',
-      twitter: '@jordandevrel',
-      website: 'jordanokafor.com',
-      colorIdx: 2,
-      actionType: 'follow-up',
-      nextAction: 'Follow up on newsletter idea — offered to share my audience for a collab issue',
-      actionDue: '2026-05-10',
-      howUseful: 'Huge developer audience, intro to API-first founders, perspective on async-first community tools',
-      convStatus: 'waiting',
-      convPlatform: 'x',
-      convTopic: 'Newsletter collab — sent a draft outline, waiting for his feedback',
-      meetingStatus: 'potential',
-      meetingDate: '2026-06-10',
-      meetingVenue: 'Zoom',
-    },
-    {
-      name: 'Sara Lindqvist',
-      codeword: 'VC Sara',
-      expertise: 'Venture Capital, FinTech, Deep Tech',
-      location: 'Stockholm, Sweden',
-      context: 'Introduced by Alex at the Nordic Founders dinner in Stockholm. She was the only VC who stayed to help clean up.',
-      lastSpoken: '2025-11-10',
-      stage: 'dormant',
-      painPoints: 'LP relationships becoming harder to manage as fund size grows. Needs better tools for portfolio monitoring.',
-      goals: 'Launching Fund III, focused on climate fintech. Looking for deal flow.',
-      funFacts: 'Trained as an opera singer before pivoting to finance\nRuns half-marathons every year in a different country\nKeeps a bullet journal — no apps\nHas a 200-year-old farmhouse in Dalarna',
-      email: 'sara@example.vc',
-      linkedin: 'linkedin.com/in/saralindqvist',
-      phone: '+46 70 000 0000',
-      colorIdx: 3,
-      actionType: 'message',
-      nextAction: 'Reconnect — it has been 6 months, send a warm check-in with the climate fintech angle',
-      actionDue: '2026-04-20',
-      howUseful: 'Climate fintech deal flow, LP network, strategic advice on fundraising narrative for deep tech',
-    },
-    {
-      name: 'Priya Nair',
-      codeword: 'Figma Priya',
-      expertise: 'Product Design, Design Systems, UX Research',
-      location: 'Mumbai, India',
-      context: 'Workshop facilitator at Config 2024. Stayed behind after the session to chat — incredibly generous with her knowledge.',
-      lastSpoken: '2026-04-30',
-      stage: 'active',
-      painPoints: 'Design system adoption across engineering teams. Wants devs to actually use tokens.',
-      goals: 'Writing a book on enterprise design systems. Looking for a co-author.',
-      funFacts: 'Has illustrated two children\'s books\nBig fan of Bauhaus — prints everywhere\nMakes sourdough every weekend\nObsessed with Zelda games',
-      email: 'priya@example.design',
-      instagram: '@priyadesigns',
-      linkedin: 'linkedin.com/in/priyanair',
-      colorIdx: 7,
-      actionType: 'share',
-      nextAction: 'Share the design tokens article I bookmarked — directly relevant to her adoption problem',
-      howUseful: 'Design system expertise for product redesign, could lead a workshop for the team, book collab potential',
-      convStatus: 'active',
-      convPlatform: 'whatsapp',
-      convTopic: 'She is reviewing my design system draft — very helpful feedback so far',
-    },
-  ];
-
-  demos.forEach(d => {
-    contacts.push({ id: uid(), addedAt: Date.now() - Math.random() * 1e8, ...d });
-  });
-  save();
-}
-
-// ─── Boot ─────────────────────────────────────────────────────
-load();
-if (contacts.length === 0) seedDemoData();
-renderGrid();
-</script>
+<script src="js/constants.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/render.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
