@@ -1165,6 +1165,362 @@
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--faint); }
+
+  /* ── Location on card ── */
+  .card-location {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink3);
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ── Conversation badge on card ── */
+  .card-conv-badge {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin-bottom: 8px;
+    padding: 6px 8px;
+    border-left: 3px solid #457b9d;
+    background: rgba(69,123,157,0.06);
+    cursor: pointer;
+  }
+
+  .card-conv-badge.waiting  { border-left-color: #6d597a; background: rgba(109,89,122,0.06); }
+  .card-conv-badge.arranging { border-left-color: #2a9d8f; background: rgba(42,157,143,0.06); }
+  .card-conv-badge.active   { border-left-color: #2a9d8f; background: rgba(42,157,143,0.06); }
+
+  .conv-status-pill {
+    font-family: var(--mono);
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 1px 4px;
+    border: 1.5px solid currentColor;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .conv-platform-tag {
+    font-family: var(--mono);
+    font-size: 8px;
+    color: var(--ink3);
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+    padding: 0 3px;
+    background: var(--faint);
+  }
+
+  .conv-topic-text {
+    font-size: 11px;
+    color: var(--ink2);
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+  }
+
+  /* ── Meeting badge on card ── */
+  .card-meeting-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    padding: 5px 8px;
+    cursor: pointer;
+    border-left: 3px solid var(--amber);
+    background: rgba(212,130,10,0.06);
+  }
+
+  .card-meeting-badge.confirmed {
+    border-left-color: var(--green);
+    background: rgba(42,96,73,0.07);
+  }
+
+  .meeting-status-pill {
+    font-family: var(--mono);
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 1px 4px;
+    border: 1.5px solid currentColor;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .meeting-info-text {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink2);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ── Calendar view ── */
+  .calendar-wrap {
+    padding: 14px 14px 100px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .cal-month-title {
+    font-family: Georgia, serif;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+  }
+
+  .cal-nav-btn {
+    background: none;
+    border: 1.5px solid var(--ink);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 12px;
+    cursor: pointer;
+    border-radius: 0;
+    transition: all 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .cal-nav-btn:hover { background: var(--ink); color: var(--card); }
+
+  .cal-grid {
+    border: 2px solid var(--ink);
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 24px;
+  }
+
+  .cal-day-header {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--ink3);
+    text-align: center;
+    padding: 6px 2px;
+    border-bottom: 1.5px solid var(--ink);
+    border-right: 1px solid var(--faint);
+    background: var(--faint);
+  }
+
+  .cal-day-header:last-child { border-right: none; }
+
+  .cal-cell {
+    border-right: 1px solid var(--faint);
+    border-bottom: 1px solid var(--faint);
+    min-height: 64px;
+    padding: 4px;
+    background: var(--card);
+    position: relative;
+  }
+
+  .cal-cell:nth-child(7n) { border-right: none; }
+  .cal-cell.empty { background: var(--bg); }
+  .cal-cell.today { background: #fffef0; }
+  .cal-cell.today .cal-day-num { font-weight: 900; color: var(--ink); }
+
+  .cal-day-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink3);
+    margin-bottom: 3px;
+  }
+
+  .cal-event {
+    font-size: 8px;
+    font-family: var(--mono);
+    padding: 2px 4px;
+    margin-bottom: 2px;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: opacity 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .cal-event:hover { opacity: 0.75; }
+  .cal-event.potential { background: rgba(212,130,10,0.18); color: #7a4d00; border-left: 2px solid var(--amber); }
+  .cal-event.confirmed { background: rgba(42,96,73,0.18); color: #1a3d2e; border-left: 2px solid var(--green); }
+
+  .cal-section-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--ink3);
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--faint);
+  }
+
+  .cal-upcoming-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+
+  .cal-upcoming-item {
+    background: var(--card);
+    border: 2px solid var(--ink);
+    box-shadow: 2px 2px 0 var(--ink);
+    padding: 10px 12px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    cursor: pointer;
+    transition: box-shadow 0.1s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .cal-upcoming-item:hover { box-shadow: 4px 4px 0 var(--ink); transform: translate(-1px,-1px); }
+
+  .cal-date-block {
+    width: 48px;
+    flex-shrink: 0;
+    text-align: center;
+    border: 1.5px solid var(--ink);
+    padding: 4px 2px;
+  }
+
+  .cal-date-month {
+    font-family: var(--mono);
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--ink3);
+    margin-bottom: 1px;
+  }
+
+  .cal-date-day {
+    font-family: Georgia, serif;
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .cal-date-block.confirmed .cal-date-day { color: var(--green); }
+  .cal-date-block.potential .cal-date-day { color: var(--amber); }
+
+  .cal-event-body { flex: 1; min-width: 0; }
+
+  .cal-event-name {
+    font-family: Georgia, serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+
+  .cal-event-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink3);
+    margin-bottom: 3px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .cal-event-venue {
+    font-size: 11px;
+    color: var(--ink2);
+    font-style: italic;
+  }
+
+  .cal-legend {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 14px;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--ink3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .cal-legend span { display: flex; align-items: center; gap: 4px; }
+
+  /* ── Geo World Map ── */
+  .geo-continent { fill: #d8d2c5; stroke: #b8b2a5; stroke-width: 0.8; }
+  .geo-ocean { fill: #e8e3d8; }
+
+  .geo-pin-group { cursor: pointer; }
+  .geo-pin-bg { fill: white; stroke: var(--ink); stroke-width: 1.5; transition: r 0.15s; }
+  .geo-pin-group:hover .geo-pin-bg { stroke-width: 2.5; }
+  .geo-pin-dot { stroke: none; }
+  .geo-pin-action { fill: #d4820a; stroke: white; stroke-width: 1; pointer-events: none; }
+  .geo-pin-meeting-dot { fill: #2a6049; stroke: white; stroke-width: 1; pointer-events: none; }
+
+  .geo-city-label {
+    font-family: var(--mono);
+    font-size: 7px;
+    fill: var(--ink3);
+    pointer-events: none;
+    text-anchor: middle;
+  }
+
+  .geo-map-legend {
+    position: absolute;
+    bottom: 14px;
+    left: 14px;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--ink3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    background: rgba(240,235,224,0.85);
+    padding: 5px 8px;
+    border: 1px solid var(--faint);
+  }
+
+  .geo-map-legend span { display: flex; align-items: center; gap: 4px; }
+
+  /* Detail conv section */
+  .detail-conv-block {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--faint);
+    border-left: 4px solid #457b9d;
+    background: rgba(69,123,157,0.04);
+  }
+
+  .detail-conv-block.waiting  { border-left-color: #6d597a; background: rgba(109,89,122,0.04); }
+  .detail-conv-block.arranging { border-left-color: #2a9d8f; background: rgba(42,157,143,0.04); }
+  .detail-conv-block.active   { border-left-color: #2a9d8f; background: rgba(42,157,143,0.04); }
+
+  .detail-meeting-block {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--faint);
+    border-left: 4px solid var(--amber);
+    background: rgba(212,130,10,0.04);
+  }
+
+  .detail-meeting-block.confirmed {
+    border-left-color: var(--green);
+    background: rgba(42,96,73,0.05);
+  }
 </style>
 </head>
 <body>
@@ -1177,6 +1533,7 @@
       <button class="view-btn active" data-view="cards">Cards</button>
       <button class="view-btn" data-view="overview">Overview</button>
       <button class="view-btn" data-view="map">Map</button>
+      <button class="view-btn" data-view="calendar">Cal</button>
     </div>
     <span class="count-badge" id="countBadge">0</span>
   </div>
@@ -1217,6 +1574,9 @@
 <!-- Map view -->
 <div class="map-container" id="mapContainer" style="display:none"></div>
 
+<!-- Calendar view -->
+<div id="calendarContainer" style="display:none"></div>
+
 <!-- Tooltip for map -->
 <div class="map-tooltip" id="mapTooltip"></div>
 
@@ -1252,9 +1612,15 @@
           <label class="form-label">Card Color</label>
           <div class="color-row" id="colorRow"></div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Expertise / Role</label>
-          <input class="form-input" id="f-expertise" type="text" placeholder="e.g. Product Design, Growth, DevRel" maxlength="100" />
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Expertise / Role</label>
+            <input class="form-input" id="f-expertise" type="text" placeholder="e.g. Product Design, Growth, DevRel" maxlength="100" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Location</label>
+            <input class="form-input" id="f-location" type="text" placeholder="e.g. London, UK" maxlength="80" />
+          </div>
         </div>
       </div>
 
@@ -1287,6 +1653,67 @@
         <div class="form-group">
           <label class="form-label">How They Can Help You</label>
           <textarea class="form-textarea short" id="f-howUseful" placeholder="e.g. Can intro me to climate VCs, has deep PLG expertise for Series A advice"></textarea>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">Ongoing Conversation</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select class="form-select" id="f-convStatus">
+              <option value="">-- none --</option>
+              <option value="follow-up">Need to follow up</option>
+              <option value="waiting">Waiting for reply</option>
+              <option value="arranging">Arranging meetup</option>
+              <option value="active">Active back-and-forth</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Platform</label>
+            <select class="form-select" id="f-convPlatform">
+              <option value="">-- platform --</option>
+              <option value="email">Email</option>
+              <option value="linkedin">LinkedIn</option>
+              <option value="whatsapp">WhatsApp</option>
+              <option value="x">X / Twitter</option>
+              <option value="phone">Phone</option>
+              <option value="slack">Slack</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">What the Conversation is About</label>
+          <textarea class="form-textarea short" id="f-convTopic" placeholder="e.g. Discussing API partnership, she said she'd send intro to their CTO"></textarea>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">Meeting</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Meeting Status</label>
+            <select class="form-select" id="f-meetingStatus">
+              <option value="">-- none --</option>
+              <option value="potential">Potential</option>
+              <option value="confirmed">Confirmed</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <input class="form-input" id="f-meetingDate" type="date" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Time</label>
+            <input class="form-input" id="f-meetingTime" type="time" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Venue / Platform</label>
+            <input class="form-input" id="f-meetingVenue" type="text" placeholder="e.g. Blue Bottle Coffee / Zoom" maxlength="80" />
+          </div>
         </div>
       </div>
 
@@ -1456,6 +1883,98 @@ const ACTION_FULL = {
   other:     'Action',
 };
 
+const CONV_STATUS = {
+  'follow-up': { label: 'Follow up',       color: '#d4820a' },
+  'waiting':   { label: 'Waiting',          color: '#457b9d' },
+  'arranging': { label: 'Arranging meetup', color: '#2a9d8f' },
+  'active':    { label: 'Active',           color: '#2a9d8f' },
+};
+
+const CONV_PLATFORM_LABELS = {
+  email: 'Email', linkedin: 'LinkedIn', x: 'X', whatsapp: 'WhatsApp',
+  phone: 'Phone', slack: 'Slack', other: '',
+};
+
+const MEETING_STATUS = {
+  potential: { label: 'Potential', color: '#d4820a' },
+  confirmed: { label: 'Confirmed', color: '#2a6049' },
+};
+
+// City name → [x%, y%] on equirectangular 0-100 scale
+// x = (lon+180)/360*100, y = (90-lat)/180*100
+const GEO_CITIES = {
+  'london': [50.0, 21.4], 'manchester': [49.4, 20.8], 'edinburgh': [49.1, 19.9],
+  'dublin': [48.3, 20.3], 'paris': [50.6, 22.8], 'berlin': [53.7, 20.8],
+  'amsterdam': [51.4, 20.8], 'madrid': [49.0, 27.4], 'barcelona': [50.6, 26.8],
+  'rome': [53.4, 26.8], 'milan': [52.5, 24.7], 'vienna': [54.6, 23.1],
+  'zurich': [52.4, 23.5], 'stockholm': [55.0, 17.1], 'oslo': [53.0, 16.4],
+  'copenhagen': [53.5, 19.0], 'helsinki': [56.9, 16.6], 'brussels': [51.7, 22.5],
+  'lisbon': [47.5, 28.7], 'athens': [56.6, 28.9], 'istanbul': [58.0, 27.2],
+  'moscow': [60.4, 19.0], 'kyiv': [58.5, 21.9], 'warsaw': [55.8, 21.1],
+  'prague': [54.0, 22.2], 'budapest': [55.3, 23.2], 'bucharest': [57.8, 25.6],
+  'dubai': [65.4, 35.9], 'abu dhabi': [64.8, 36.5], 'riyadh': [62.9, 36.2],
+  'tel aviv': [59.7, 32.2], 'cairo': [58.7, 33.3], 'lagos': [51.0, 46.4],
+  'nairobi': [60.2, 50.4], 'johannesburg': [57.8, 64.5], 'cape town': [55.1, 68.8],
+  'accra': [50.2, 48.1], 'addis ababa': [60.7, 45.6],
+  'mumbai': [70.2, 39.4], 'delhi': [71.5, 34.3], 'bangalore': [71.6, 42.8],
+  'chennai': [72.3, 42.5], 'kolkata': [74.6, 37.6], 'karachi': [68.6, 36.3],
+  'dhaka': [75.1, 37.2], 'islamabad': [68.3, 33.1],
+  'new york': [29.4, 27.4], 'nyc': [29.4, 27.4], 'san francisco': [15.8, 29.0],
+  'los angeles': [17.2, 31.1], 'la': [17.2, 31.1], 'chicago': [25.7, 26.9],
+  'toronto': [27.9, 25.7], 'boston': [30.3, 26.4], 'miami': [27.8, 35.6],
+  'seattle': [16.2, 23.4], 'vancouver': [15.8, 22.6], 'washington': [28.6, 28.4],
+  'austin': [24.3, 33.5], 'denver': [22.2, 26.9], 'new orleans': [25.8, 33.9],
+  'atlanta': [26.9, 31.4], 'houston': [24.2, 33.1], 'san diego': [16.7, 30.0],
+  'portland': [16.4, 24.2], 'phoenix': [19.8, 30.3], 'dallas': [23.5, 31.5],
+  'mexico city': [22.5, 39.2],
+  'bogota': [29.1, 47.4], 'lima': [28.7, 56.7], 'buenos aires': [32.8, 68.5],
+  'santiago': [30.5, 67.0], 'sao paulo': [37.1, 62.5], 'rio de janeiro': [37.8, 62.0],
+  'singapore': [78.8, 49.3], 'kuala lumpur': [78.3, 47.6], 'bangkok': [77.9, 42.6],
+  'jakarta': [79.7, 53.4], 'ho chi minh': [79.6, 44.0], 'manila': [83.6, 41.9],
+  'taipei': [83.8, 36.1], 'hong kong': [81.7, 37.9], 'beijing': [82.3, 27.8],
+  'shanghai': [83.8, 32.9], 'seoul': [85.3, 29.2], 'tokyo': [88.8, 30.2],
+  'osaka': [87.6, 30.7], 'sydney': [92.0, 68.8], 'melbourne': [90.3, 70.4],
+  'brisbane': [91.2, 62.5], 'perth': [82.2, 67.5], 'auckland': [98.6, 70.5],
+};
+
+function lookupCity(locationStr) {
+  if (!locationStr) return null;
+  const low = locationStr.toLowerCase();
+  for (const [city, coords] of Object.entries(GEO_CITIES)) {
+    if (low.includes(city)) return coords;
+  }
+  return null;
+}
+
+// Simplified continent outlines [SVG path string, fillClass]
+// Coordinates in 0-1000 x 0-500 viewBox (equirectangular)
+const CONTINENT_PATHS = [
+  // North America
+  'M 38,68 C 115,40 225,38 320,78 L 365,118 L 322,158 L 285,182 L 262,198 L 248,212 L 225,212 C 198,192 172,162 155,128 C 128,98 58,88 38,68 Z',
+  // Greenland
+  'M 322,18 L 440,14 L 450,44 L 420,90 L 375,102 L 332,82 Z',
+  // South America
+  'M 295,242 C 342,222 385,248 410,295 L 422,365 L 395,432 L 358,478 L 315,488 L 272,472 L 245,422 L 228,355 L 232,288 Z',
+  // Europe
+  'M 460,72 C 508,55 562,55 612,75 C 638,92 645,118 625,140 L 590,158 L 562,162 L 538,155 L 512,162 L 482,155 L 462,135 L 452,102 Z',
+  // Africa
+  'M 462,162 L 542,152 L 598,160 L 658,192 L 672,248 L 668,348 L 642,435 L 595,512 L 548,525 L 490,520 L 452,475 L 432,388 L 438,272 Z',
+  // Asia (main + Russia)
+  'M 598,58 C 718,40 825,44 952,96 L 968,148 L 942,202 L 905,248 L 872,282 L 855,318 L 875,338 L 842,362 L 808,368 L 768,348 L 728,308 L 695,278 L 658,252 L 638,218 L 618,168 L 628,112 L 608,84 Z',
+  // Indian Subcontinent
+  'M 658,252 L 698,268 L 742,302 L 755,358 L 742,412 L 705,432 L 665,422 L 648,378 L 635,322 L 642,272 Z',
+  // SE Asia
+  'M 742,302 L 792,308 L 835,338 L 838,382 L 808,408 L 778,398 L 755,368 L 748,335 Z',
+  // Japan
+  'M 878,122 L 908,128 L 912,168 L 892,182 L 872,162 L 864,132 Z',
+  // Australia
+  'M 818,298 L 935,278 L 972,318 L 972,398 L 938,442 L 875,452 L 812,422 L 795,368 Z',
+  // New Zealand
+  'M 972,348 L 984,335 L 995,358 L 988,380 L 975,378 Z',
+  // UK/Ireland (small)
+  'M 465,75 L 492,68 L 498,95 L 482,102 L 465,92 Z',
+];
+
 // ─── State ────────────────────────────────────────────────────
 let contacts = [];
 let editingId = null;
@@ -1550,6 +2069,30 @@ function primaryExpertise(c) {
   return (c.expertise || '').split(',')[0].trim() || 'Other';
 }
 
+function formatMeetingDate(dateStr) {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  } catch(_) { return dateStr; }
+}
+
+function meetingMonthYear(dateStr) {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('en-GB', { month: 'short' }).toUpperCase();
+  } catch(_) { return ''; }
+}
+
+function meetingDay(dateStr) {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.getDate();
+  } catch(_) { return ''; }
+}
+
 // ─── Filter + Sort ────────────────────────────────────────────
 function getFiltered() {
   let list = [...contacts];
@@ -1557,8 +2100,9 @@ function getFiltered() {
 
   if (q) {
     list = list.filter(c =>
-      [c.name, c.codeword, c.expertise, c.context, c.funFacts,
-       c.notes, c.email, c.stage, c.nextAction, c.howUseful]
+      [c.name, c.codeword, c.expertise, c.location, c.context, c.funFacts,
+       c.notes, c.email, c.stage, c.nextAction, c.howUseful,
+       c.convTopic, c.meetingVenue]
         .some(f => (f || '').toLowerCase().includes(q))
     );
   }
@@ -1599,10 +2143,12 @@ function switchView(view) {
   document.getElementById('grid').style.display = isCards ? '' : 'none';
   document.getElementById('overviewContainer').style.display = view === 'overview' ? '' : 'none';
   document.getElementById('mapContainer').style.display = view === 'map' ? '' : 'none';
+  document.getElementById('calendarContainer').style.display = view === 'calendar' ? '' : 'none';
 
   if (view === 'cards') renderGrid();
   if (view === 'overview') renderOverview();
   if (view === 'map') renderMap();
+  if (view === 'calendar') renderCalendar();
 }
 
 document.querySelector('.view-toggle').addEventListener('click', e => {
@@ -1659,6 +2205,31 @@ function renderGrid() {
         </div>`;
     }
 
+    let convBadge = '';
+    if (c.convStatus) {
+      const cs = CONV_STATUS[c.convStatus] || { label: c.convStatus, color: '#888' };
+      const platform = c.convPlatform ? CONV_PLATFORM_LABELS[c.convPlatform] || c.convPlatform : '';
+      convBadge = `
+        <div class="card-conv-badge ${c.convStatus} open-detail" data-id="${c.id}">
+          <span class="conv-status-pill" style="color:${cs.color}">${cs.label}</span>
+          ${platform ? `<span class="conv-platform-tag">${esc(platform)}</span>` : ''}
+          ${c.convTopic ? `<span class="conv-topic-text">${highlight(c.convTopic, q)}</span>` : ''}
+        </div>`;
+    }
+
+    let meetingBadge = '';
+    if (c.meetingStatus && c.meetingDate) {
+      const ms = MEETING_STATUS[c.meetingStatus] || { label: c.meetingStatus, color: '#888' };
+      const dateStr = formatMeetingDate(c.meetingDate);
+      const timeStr = c.meetingTime ? ` · ${c.meetingTime}` : '';
+      const venueStr = c.meetingVenue ? ` · ${c.meetingVenue}` : '';
+      meetingBadge = `
+        <div class="card-meeting-badge ${c.meetingStatus} open-detail" data-id="${c.id}">
+          <span class="meeting-status-pill" style="color:${ms.color}">${ms.label}</span>
+          <span class="meeting-info-text">${esc(dateStr + timeStr + venueStr)}</span>
+        </div>`;
+    }
+
     return `
       <div class="card" data-id="${c.id}" style="animation-delay:${Math.min(i*0.025,0.25)}s">
         <div class="card-stripe" style="background:${col.bg}"></div>
@@ -1679,10 +2250,14 @@ function renderGrid() {
             ${c.expertise ? highlight(c.expertise, q) : '+ expertise / role'}
           </div>
 
+          ${c.location ? `<div class="card-location">${highlight(c.location, q)}</div>` : ''}
+
           ${c.context ? `<div class="card-context open-detail" data-id="${c.id}">${highlight(c.context, q)}</div>` : ''}
           ${funFacts.length ? `<div class="card-fact open-detail" data-id="${c.id}">${esc(funFacts[0])}</div>` : ''}
 
           ${actionBadge}
+          ${convBadge}
+          ${meetingBadge}
 
           <hr class="card-divider" />
 
@@ -1813,6 +2388,13 @@ function renderOverview() {
   const overdue = contacts.filter(c => daysSince(c.lastSpoken) > 60).length;
   const withAction = contacts.filter(c => c.nextAction || c.actionType).length;
 
+  // Upcoming meetings
+  const todayIso = todayStr();
+  const upcomingMeetings = contacts
+    .filter(c => c.meetingDate && c.meetingStatus && c.meetingDate >= todayIso)
+    .sort((a, b) => (a.meetingDate > b.meetingDate ? 1 : -1))
+    .slice(0, 5);
+
   // Pending actions sorted by due date (overdue first, then by date, then undated)
   const actions = contacts
     .filter(c => c.nextAction || c.actionType)
@@ -1921,6 +2503,29 @@ function renderOverview() {
           </div>` : '<div class="ov-empty">No conversations logged yet.</div>'}
       </div>
 
+      ${upcomingMeetings.length ? `
+        <div class="ov-section">
+          <div class="ov-title">Upcoming Meetings</div>
+          <div class="action-list">
+            ${upcomingMeetings.map(c => {
+              const col = COLORS[c.colorIdx ?? 0];
+              const ms = MEETING_STATUS[c.meetingStatus] || { label: c.meetingStatus, color: '#888' };
+              return `
+                <div class="action-item" data-id="${c.id}">
+                  <div class="action-item-stripe" style="background:${ms.color}"></div>
+                  <div class="action-item-body">
+                    <div class="action-item-who">${esc(c.name)}</div>
+                    <div class="action-item-what">
+                      <span class="action-type-pill" style="color:${ms.color};margin-right:6px">${ms.label}</span>
+                      ${esc(formatMeetingDate(c.meetingDate))}${c.meetingTime ? ' · ' + esc(c.meetingTime) : ''}
+                    </div>
+                    ${c.meetingVenue ? `<div class="action-item-meta"><span style="font-size:11px;color:var(--ink3);font-style:italic">${esc(c.meetingVenue)}</span></div>` : ''}
+                  </div>
+                </div>`;
+            }).join('')}
+          </div>
+        </div>` : ''}
+
       ${useful.length ? `
         <div class="ov-section">
           <div class="ov-title">How Your Network Can Help You</div>
@@ -1941,202 +2546,143 @@ function renderOverview() {
   });
 }
 
-// ─── Mind Map ─────────────────────────────────────────────────
+// ─── Geographic World Map ──────────────────────────────────────
 function renderMap() {
   const container = document.getElementById('mapContainer');
-  const W = container.clientWidth;
-  const H = container.clientHeight;
+  const W = container.clientWidth || 800;
+  const H = container.clientHeight || 500;
 
-  const list = contacts; // map always shows all contacts
+  // Group contacts by city coords. Contacts without a recognised location go to a "?" pile
+  const pinGroups = {}; // key: "x,y" → [contacts]
+  const unmapped = [];
 
-  if (list.length === 0) {
+  contacts.forEach(c => {
+    const coords = lookupCity(c.location);
+    if (coords) {
+      const key = coords.join(',');
+      if (!pinGroups[key]) pinGroups[key] = { coords, list: [] };
+      pinGroups[key].list.push(c);
+    } else {
+      unmapped.push(c);
+    }
+  });
+
+  if (contacts.length === 0) {
     container.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--ink3);font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:1px">
-        No contacts to map
+        No contacts to map yet
       </div>`;
     return;
   }
 
-  // Group by primary expertise
-  const clusterMap = {};
-  list.forEach(c => {
-    const key = primaryExpertise(c);
-    if (!clusterMap[key]) clusterMap[key] = [];
-    clusterMap[key].push(c);
-  });
-
-  const clusterKeys = Object.keys(clusterMap);
-  const N = clusterKeys.length;
-
-  const cx = W / 2;
-  const cy = H / 2;
-
-  // Scale cluster radius based on number of clusters
-  const clusterR = Math.min(W * 0.34, H * 0.36, N <= 3 ? 160 : N <= 6 ? 210 : 260);
-  // Contact node radius from cluster center
-  const nodeR = 20;
-
-  let svgLines = '';
-  let svgClusters = '';
-  let svgNodes = '';
-  let svgNames = '';
-
-  // Background dot grid (subtle)
-  let dots = '';
-  for (let x = 0; x < W; x += 30) {
-    for (let y = 0; y < H; y += 30) {
-      dots += `<circle cx="${x}" cy="${y}" r="1" fill="#c8c3b8" />`;
-    }
+  // Scale pct coords → SVG pixels
+  // The SVG uses a fixed 1000x500 viewBox (equirectangular), then scales to container
+  const VW = 1000, VH = 500;
+  function toSVG(pctX, pctY) {
+    return [pctX * VW / 100, pctY * VH / 100];
   }
 
-  // Center hub
-  svgClusters += `
-    <rect x="${cx-40}" y="${cy-18}" width="80" height="36"
-      fill="var(--ink)" />
-    <text x="${cx}" y="${cy+5}" text-anchor="middle"
-      font-size="11" font-weight="900" fill="white"
-      font-family="'Courier New',monospace" letter-spacing="1.5">NETWORK</text>`;
+  // Draw continent paths
+  const continents = CONTINENT_PATHS.map(d =>
+    `<path d="${d}" class="geo-continent" />`
+  ).join('');
 
-  clusterKeys.forEach((key, i) => {
-    const angle = (i / N) * Math.PI * 2 - Math.PI / 2;
-    const clx = cx + clusterR * Math.cos(angle);
-    const cly = cy + clusterR * Math.sin(angle);
+  // Draw pins
+  let pinsSVG = '';
+  let namesSVG = '';
 
-    const members = clusterMap[key];
-    const M = members.length;
+  Object.values(pinGroups).forEach(({ coords, list }) => {
+    const [px, py] = toSVG(coords[0], coords[1]);
+    const n = list.length;
+    const hasAction = list.some(c => c.nextAction || c.actionType);
+    const hasMeeting = list.some(c => c.meetingStatus && c.meetingDate);
+    const hasOverdue = list.some(c => c.actionDue && daysUntil(c.actionDue) < 0);
 
-    // Spoke from center to cluster
-    svgLines += `
-      <line x1="${cx}" y1="${cy}" x2="${clx}" y2="${cly}"
-        stroke="#c8c3b8" stroke-width="1.5" stroke-dasharray="5,4" />`;
+    // Use first contact's color for pin center
+    const col = COLORS[list[0].colorIdx ?? 0];
+    const r = n === 1 ? 9 : Math.min(14, 9 + n);
 
-    // Contact positions around cluster
-    const contactRing = M === 1 ? 0 : Math.max(55, Math.min(85, M * 18));
+    // Build tooltip title text
+    const names = list.map(c => c.name).join(', ');
+    const cityName = list[0].location || '';
 
-    members.forEach((c, j) => {
-      let mx, my;
-      if (M === 1) {
-        // Single contact: offset slightly further from center along same spoke
-        mx = cx + (clusterR + 80) * Math.cos(angle);
-        my = cy + (clusterR + 80) * Math.sin(angle);
-      } else {
-        // Fan around cluster, biased away from center
-        const spread = Math.min(Math.PI * 1.2, (M - 1) * 0.45);
-        const startAngle = angle - spread / 2;
-        const memberAngle = M === 1 ? angle : startAngle + (j / (M - 1)) * spread;
-        mx = clx + contactRing * Math.cos(memberAngle + Math.PI / 2 * 0);
-        my = cly + contactRing * Math.sin(memberAngle + Math.PI / 2 * 0);
-        // Actually use a full ring for cleaner look
-        const fullAngle = (j / M) * Math.PI * 2 - Math.PI / 2;
-        mx = clx + contactRing * Math.cos(fullAngle);
-        my = cly + contactRing * Math.sin(fullAngle);
-      }
-
-      const col = COLORS[c.colorIdx ?? 0];
-      const hasAction = c.nextAction || c.actionType;
-      const isOv = c.actionDue && daysUntil(c.actionDue) < 0;
-
-      // Line from cluster to contact
-      svgLines += `
-        <line x1="${clx}" y1="${cly}" x2="${mx}" y2="${my}"
-          stroke="${col.bg}70" stroke-width="1.5" />`;
-
-      // Contact circle (main node)
-      svgNodes += `
-        <circle cx="${mx}" cy="${my}" r="${nodeR}" fill="${col.bg}"
-          stroke="var(--ink)" stroke-width="2"
-          class="map-node" data-id="${c.id}" style="cursor:pointer">
-          <title>${esc(c.name)}${c.expertise ? ' — ' + esc(c.expertise.split(',')[0]) : ''}</title>
-        </circle>
-        <text x="${mx}" y="${my}" text-anchor="middle" dominant-baseline="middle"
-          font-size="10" font-weight="900" fill="white"
-          font-family="Georgia,serif" pointer-events="none">${initials(c.name)}</text>`;
-
-      // Action indicator dot
-      if (hasAction) {
-        const dotColor = isOv ? '#c1121f' : '#d4820a';
-        svgNodes += `
-          <circle cx="${mx + nodeR - 3}" cy="${my - nodeR + 3}" r="6"
-            fill="${dotColor}" stroke="white" stroke-width="1.5"
-            pointer-events="none" />`;
-      }
-
-      // Name below node
-      const firstName = (c.name || '').split(' ')[0];
-      svgNames += `
-        <text x="${mx}" y="${my + nodeR + 13}" text-anchor="middle"
-          font-size="9" fill="var(--ink2)"
-          font-family="'Courier New',monospace" pointer-events="none">${esc(firstName)}</text>`;
-    });
-
-    // Cluster label (rendered after contacts so it's on top)
-    const shortKey = key.length > 16 ? key.slice(0, 14) + '..' : key;
-    const labelW = Math.max(shortKey.length * 6.5 + 16, 56);
-    svgClusters += `
-      <rect x="${clx - labelW/2}" y="${cly - 16}" width="${labelW}" height="32"
-        fill="var(--bg)" stroke="var(--ink)" stroke-width="2" />
-      <text x="${clx}" y="${cly - 3}" text-anchor="middle"
-        font-size="9" font-weight="700" fill="var(--ink)"
-        font-family="'Courier New',monospace" letter-spacing="0.5"
-        pointer-events="none">${esc(shortKey.toUpperCase())}</text>
-      <text x="${clx}" y="${cly + 10}" text-anchor="middle"
-        font-size="8" fill="var(--ink3)"
-        font-family="'Courier New',monospace"
-        pointer-events="none">${M} ${M === 1 ? 'person' : 'people'}</text>`;
+    // Group <g> acts as click target
+    const ids = list.map(c => `data-id-${c.id}`).join(' ');
+    pinsSVG += `
+      <g class="geo-pin-group" data-ids="${list.map(c => c.id).join(',')}" data-city="${esc(cityName)}">
+        <title>${esc(names)}${cityName ? '\n' + esc(cityName) : ''}</title>
+        <circle cx="${px}" cy="${py}" r="${r + 3}" class="geo-pin-bg" />
+        <circle cx="${px}" cy="${py}" r="${r}" fill="${col.bg}" class="geo-pin-dot" stroke="none" />
+        <text x="${px}" y="${py}" text-anchor="middle" dominant-baseline="middle"
+          font-size="${n > 1 ? 9 : 8}" font-weight="900" fill="white"
+          font-family="Georgia,serif" pointer-events="none">
+          ${n > 1 ? n : initials(list[0].name)}
+        </text>
+        ${hasAction ? `<circle cx="${px + r + 1}" cy="${py - r - 1}" r="4" class="geo-pin-action" />` : ''}
+        ${hasMeeting ? `<circle cx="${px + r + 1}" cy="${py + r + 1}" r="4" class="geo-pin-meeting-dot" />` : ''}
+      </g>`;
   });
 
+  // Unmapped contacts listed at bottom-right as text
+  let unmappedSVG = '';
+  if (unmapped.length > 0) {
+    unmappedSVG = `
+      <rect x="${VW - 190}" y="${VH - unmapped.length * 14 - 26}" width="188" height="${unmapped.length * 14 + 20}"
+        fill="rgba(240,235,224,0.92)" stroke="#c8c3b8" stroke-width="1" />
+      <text x="${VW - 96}" y="${VH - unmapped.length * 14 - 12}" text-anchor="middle"
+        font-size="8" fill="var(--ink3)" font-family="'Courier New',monospace"
+        font-weight="700" letter-spacing="0.5">NO LOCATION SET</text>
+      ${unmapped.map((c, i) => `
+        <text x="${VW - 182}" y="${VH - unmapped.length * 14 + i * 14 + 2}"
+          font-size="9" fill="var(--ink2)" font-family="Georgia,serif">${esc(c.name)}</text>
+      `).join('')}`;
+  }
+
   container.innerHTML = `
-    <svg width="${W}" height="${H}" class="map-svg">
-      <g opacity="0.5">${dots}</g>
-      ${svgLines}
-      ${svgClusters}
-      ${svgNodes}
-      ${svgNames}
-    </svg>`;
+    <svg viewBox="0 0 ${VW} ${VH}" preserveAspectRatio="xMidYMid meet"
+         style="display:block;width:100%;height:100%;background:#e8e4db">
+      ${continents}
+      ${pinsSVG}
+      ${unmappedSVG}
+    </svg>
+    <div class="geo-map-legend">
+      <span><span style="width:10px;height:10px;border-radius:50%;background:#d4820a;display:inline-block"></span> Action pending</span>
+      <span><span style="width:10px;height:10px;border-radius:50%;background:#2a6049;display:inline-block"></span> Meeting</span>
+      <span style="color:var(--ink3)">Click pin to view</span>
+    </div>`;
 
-  // Legend
-  const legend = document.createElement('div');
-  legend.style.cssText = `
-    position:absolute; bottom:16px; left:14px;
-    font-family:var(--mono); font-size:9px; color:var(--ink3);
-    text-transform:uppercase; letter-spacing:0.5px;
-    display:flex; gap:14px; align-items:center;
-  `;
-  legend.innerHTML = `
-    <span style="display:flex;align-items:center;gap:4px">
-      <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#d4820a"></span>
-      Action pending
-    </span>
-    <span style="display:flex;align-items:center;gap:4px">
-      <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#c1121f"></span>
-      Overdue
-    </span>
-    <span>Click node to view</span>`;
   container.style.position = 'relative';
-  container.appendChild(legend);
 
-  // Node click → open detail
-  container.querySelectorAll('.map-node').forEach(node => {
-    node.addEventListener('click', () => openDetail(node.dataset.id));
+  // Pin click → open detail (single) or show list (multiple)
+  container.querySelectorAll('.geo-pin-group').forEach(pin => {
+    pin.addEventListener('click', () => {
+      const ids = pin.dataset.ids.split(',').filter(Boolean);
+      if (ids.length === 1) {
+        openDetail(ids[0]);
+      } else {
+        // Open first contact; TODO: could show a mini list
+        openDetail(ids[0]);
+      }
+    });
 
-    // Tooltip
-    node.addEventListener('mouseenter', e => {
-      const c = contacts.find(x => x.id === node.dataset.id);
-      if (!c) return;
+    pin.addEventListener('mouseenter', e => {
+      const ids = pin.dataset.ids.split(',').filter(Boolean);
+      const list = ids.map(id => contacts.find(c => c.id === id)).filter(Boolean);
       const tt = document.getElementById('mapTooltip');
-      tt.innerHTML = `<strong>${esc(c.name)}</strong>` +
-        (c.expertise ? `<br><span style="color:#aaa">${esc(c.expertise.split(',')[0])}</span>` : '') +
-        (c.nextAction ? `<br><span style="color:#d4820a">${esc((c.nextAction).slice(0,40))}</span>` : '');
+      tt.innerHTML = list.map(c =>
+        `<strong>${esc(c.name)}</strong>` +
+        (c.expertise ? `<span style="color:#aaa"> · ${esc(c.expertise.split(',')[0])}</span>` : '')
+      ).join('<br>') + (pin.dataset.city ? `<br><span style="color:#aaa">${esc(pin.dataset.city)}</span>` : '');
       tt.style.display = 'block';
     });
 
-    node.addEventListener('mousemove', e => {
+    pin.addEventListener('mousemove', e => {
       const tt = document.getElementById('mapTooltip');
       tt.style.left = (e.clientX + 14) + 'px';
       tt.style.top = (e.clientY - 10) + 'px';
     });
 
-    node.addEventListener('mouseleave', () => {
+    pin.addEventListener('mouseleave', () => {
       document.getElementById('mapTooltip').style.display = 'none';
     });
   });
@@ -2150,6 +2696,128 @@ window.addEventListener('resize', () => {
     mapResizeTimer = setTimeout(renderMap, 150);
   }
 });
+
+// ─── Calendar ──────────────────────────────────────────────────
+let calendarDate = new Date();
+
+function renderCalendar() {
+  const el = document.getElementById('calendarContainer');
+
+  const year = calendarDate.getFullYear();
+  const month = calendarDate.getMonth(); // 0-indexed
+
+  const monthName = calendarDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+
+  // Gather all contacts with meetings
+  const withMeetings = contacts.filter(c => c.meetingDate && c.meetingStatus);
+
+  // Build month grid
+  const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const startOffset = firstDay === 0 ? 6 : firstDay - 1; // Monday-first
+
+  const todayStr2 = todayStr();
+
+  // Build events by date
+  const eventsByDate = {};
+  withMeetings.forEach(c => {
+    if (!eventsByDate[c.meetingDate]) eventsByDate[c.meetingDate] = [];
+    eventsByDate[c.meetingDate].push(c);
+  });
+
+  // Day headers
+  const dayHeaders = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
+    .map(d => `<div class="cal-day-header">${d}</div>`).join('');
+
+  // Cells
+  let cells = '';
+  // Leading empty cells
+  for (let i = 0; i < startOffset; i++) {
+    cells += `<div class="cal-cell empty"></div>`;
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = dateKey === todayStr2;
+    const dayEvents = eventsByDate[dateKey] || [];
+    cells += `<div class="cal-cell${isToday ? ' today' : ''}">
+      <div class="cal-day-num">${d}</div>
+      ${dayEvents.map(c =>
+        `<div class="cal-event ${c.meetingStatus}" data-id="${c.id}">${esc(c.name.split(' ')[0])}</div>`
+      ).join('')}
+    </div>`;
+  }
+
+  // Upcoming meetings across all time (sorted)
+  const upcomingAll = [...withMeetings]
+    .sort((a, b) => (a.meetingDate > b.meetingDate ? 1 : a.meetingDate < b.meetingDate ? -1 : 0));
+
+  const futureUpcoming = upcomingAll.filter(c => c.meetingDate >= todayStr2);
+  const pastMeetings = upcomingAll.filter(c => c.meetingDate < todayStr2).slice(-3).reverse();
+
+  function meetingItem(c) {
+    const ms = MEETING_STATUS[c.meetingStatus] || { label: c.meetingStatus, color: '#888' };
+    const col = COLORS[c.colorIdx ?? 0];
+    return `
+      <div class="cal-upcoming-item" data-id="${c.id}">
+        <div class="cal-date-block ${c.meetingStatus}">
+          <div class="cal-date-month">${meetingMonthYear(c.meetingDate)}</div>
+          <div class="cal-date-day">${meetingDay(c.meetingDate)}</div>
+        </div>
+        <div class="cal-event-body">
+          <div class="cal-event-name" style="color:${col.bg}">${esc(c.name)}</div>
+          <div class="cal-event-meta">
+            <span class="meeting-status-pill" style="color:${ms.color};border:1.5px solid ${ms.color};font-family:var(--mono);font-size:8px;font-weight:700;text-transform:uppercase;padding:1px 5px">${ms.label}</span>
+            ${c.meetingTime ? `<span>${esc(c.meetingTime)}</span>` : ''}
+          </div>
+          ${c.meetingVenue ? `<div class="cal-event-venue">${esc(c.meetingVenue)}</div>` : ''}
+        </div>
+      </div>`;
+  }
+
+  el.innerHTML = `
+    <div class="calendar-wrap">
+      <div class="cal-nav">
+        <button class="cal-nav-btn" id="calPrev">&lt; Prev</button>
+        <div class="cal-month-title">${monthName}</div>
+        <button class="cal-nav-btn" id="calNext">Next &gt;</button>
+      </div>
+
+      <div class="cal-legend">
+        <span><span style="display:inline-block;width:10px;height:3px;background:var(--amber)"></span> Potential</span>
+        <span><span style="display:inline-block;width:10px;height:3px;background:var(--green)"></span> Confirmed</span>
+      </div>
+
+      <div class="cal-grid">
+        ${dayHeaders}
+        ${cells}
+      </div>
+
+      ${futureUpcoming.length ? `
+        <div class="cal-section-title">Upcoming Meetings</div>
+        <div class="cal-upcoming-list">
+          ${futureUpcoming.map(meetingItem).join('')}
+        </div>` : `<div style="font-size:12px;color:var(--ink3);font-style:italic;margin-bottom:20px">No upcoming meetings. Add one by editing a contact.</div>`}
+
+      ${pastMeetings.length ? `
+        <div class="cal-section-title">Recent Past</div>
+        <div class="cal-upcoming-list">
+          ${pastMeetings.map(meetingItem).join('')}
+        </div>` : ''}
+    </div>`;
+
+  document.getElementById('calPrev').addEventListener('click', () => {
+    calendarDate = new Date(year, month - 1, 1);
+    renderCalendar();
+  });
+  document.getElementById('calNext').addEventListener('click', () => {
+    calendarDate = new Date(year, month + 1, 1);
+    renderCalendar();
+  });
+
+  el.querySelectorAll('.cal-event[data-id], .cal-upcoming-item[data-id]').forEach(item => {
+    item.addEventListener('click', e => { e.stopPropagation(); openDetail(item.dataset.id); });
+  });
+}
 
 // ─── Color row ────────────────────────────────────────────────
 function buildColorRow() {
@@ -2173,9 +2841,11 @@ function openEdit(id) {
   selectedColor = c?.colorIdx ?? 0;
   buildColorRow();
 
-  const fields = ['name','codeword','expertise','context','lastSpoken','stage',
+  const fields = ['name','codeword','expertise','location','context','lastSpoken','stage',
     'painPoints','goals','funFacts','email','phone','linkedin','twitter','instagram',
-    'website','notes','actionType','nextAction','actionDue','howUseful'];
+    'website','notes','actionType','nextAction','actionDue','howUseful',
+    'convStatus','convPlatform','convTopic',
+    'meetingStatus','meetingDate','meetingTime','meetingVenue'];
   fields.forEach(f => {
     const el = document.getElementById('f-' + f);
     if (el) el.value = c ? (c[f] || '') : '';
@@ -2204,9 +2874,11 @@ document.getElementById('saveBtn').addEventListener('click', () => {
     return;
   }
 
-  const fields = ['name','codeword','expertise','context','lastSpoken','stage',
+  const fields = ['name','codeword','expertise','location','context','lastSpoken','stage',
     'painPoints','goals','funFacts','email','phone','linkedin','twitter','instagram',
-    'website','notes','actionType','nextAction','actionDue','howUseful'];
+    'website','notes','actionType','nextAction','actionDue','howUseful',
+    'convStatus','convPlatform','convTopic',
+    'meetingStatus','meetingDate','meetingTime','meetingVenue'];
   const data = {};
   fields.forEach(f => { data[f] = document.getElementById('f-' + f).value.trim(); });
   data.colorIdx = selectedColor;
@@ -2224,7 +2896,8 @@ document.getElementById('saveBtn').addEventListener('click', () => {
   closeEdit();
   if (activeView === 'cards') renderGrid();
   else if (activeView === 'overview') renderOverview();
-  else renderMap();
+  else if (activeView === 'map') renderMap();
+  else if (activeView === 'calendar') renderCalendar();
 });
 
 document.getElementById('cancelBtn').addEventListener('click', closeEdit);
@@ -2251,7 +2924,8 @@ document.getElementById('confirmOk').addEventListener('click', () => {
   closeEdit();
   if (activeView === 'cards') renderGrid();
   else if (activeView === 'overview') renderOverview();
-  else renderMap();
+  else if (activeView === 'map') renderMap();
+  else if (activeView === 'calendar') renderCalendar();
   toast('Deleted');
 });
 
@@ -2285,6 +2959,7 @@ function openDetail(id) {
         <div class="detail-name">${esc(c.name)}</div>
         ${c.codeword ? `<div class="detail-codeword" style="color:${col.bg}">${esc(c.codeword)}</div>` : ''}
         ${c.expertise ? `<div style="font-size:13px;color:var(--ink2);margin-top:2px">${esc(c.expertise)}</div>` : ''}
+        ${c.location ? `<div style="font-family:var(--mono);font-size:10px;color:var(--ink3);margin-top:4px">${esc(c.location)}</div>` : ''}
         ${stage ? `<div class="stage-tag" style="color:${stage.color};display:inline-block;margin-top:6px">${stage.label}</div>` : ''}
       </div>
     </div>
@@ -2307,6 +2982,33 @@ function openDetail(id) {
       <div class="detail-section-title">How They Can Help You</div>
       <div class="detail-text">${esc(c.howUseful)}</div>
     </div>` : '')}
+
+    ${c.convStatus ? (() => {
+      const cs = CONV_STATUS[c.convStatus] || { label: c.convStatus, color: '#888' };
+      const platform = c.convPlatform ? CONV_PLATFORM_LABELS[c.convPlatform] || c.convPlatform : '';
+      return `
+        <div class="detail-conv-block ${c.convStatus}">
+          <div class="detail-section-title" style="margin-bottom:6px">Conversation</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+            <span class="conv-status-pill" style="color:${cs.color};border:1.5px solid ${cs.color};font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 6px">${cs.label}</span>
+            ${platform ? `<span style="font-family:var(--mono);font-size:9px;color:var(--ink3);background:var(--faint);padding:2px 6px">${esc(platform)}</span>` : ''}
+          </div>
+          ${c.convTopic ? `<div class="detail-text">${esc(c.convTopic)}</div>` : ''}
+        </div>`;
+    })() : ''}
+
+    ${c.meetingStatus && c.meetingDate ? (() => {
+      const ms = MEETING_STATUS[c.meetingStatus] || { label: c.meetingStatus, color: '#888' };
+      return `
+        <div class="detail-meeting-block ${c.meetingStatus}">
+          <div class="detail-section-title" style="margin-bottom:6px">Meeting</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+            <span class="meeting-status-pill" style="color:${ms.color};border:1.5px solid ${ms.color};font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 6px">${ms.label}</span>
+            <span style="font-family:var(--mono);font-size:11px;color:var(--ink2)">${esc(formatMeetingDate(c.meetingDate))}${c.meetingTime ? ' · ' + esc(c.meetingTime) : ''}</span>
+          </div>
+          ${c.meetingVenue ? `<div class="detail-text" style="font-style:italic">${esc(c.meetingVenue)}</div>` : ''}
+        </div>`;
+    })() : ''}
 
     ${c.context ? `
     <div class="detail-section">
@@ -2451,6 +3153,7 @@ function seedDemoData() {
       name: 'Maya Chen',
       codeword: 'Rocket Maya',
       expertise: 'Growth, B2B SaaS, GTM',
+      location: 'San Francisco, CA',
       context: 'Met at SaaStr Annual 2024. Sat at the same table during the GTM workshop — she had the best questions.',
       lastSpoken: '2026-04-20',
       stage: 'active',
@@ -2465,11 +3168,19 @@ function seedDemoData() {
       nextAction: 'Intro her to Jordan — he needs GTM help and she loves community-led growth',
       actionDue: '2026-05-15',
       howUseful: 'Deep PLG expertise, knows every growth hacker in SaaS, can advise on Series A positioning',
+      convStatus: 'follow-up',
+      convPlatform: 'linkedin',
+      convTopic: 'Discussing potential co-marketing around her Series A announcement',
+      meetingStatus: 'confirmed',
+      meetingDate: '2026-05-20',
+      meetingTime: '14:00',
+      meetingVenue: 'Blue Bottle Coffee, SOMA',
     },
     {
       name: 'Jordan Okafor',
       codeword: 'DevRel Jordan',
       expertise: 'Developer Relations, APIs, Community',
+      location: 'London, UK',
       context: 'DMs on X after I wrote a thread about onboarding flows — he had great counterpoints.',
       lastSpoken: '2026-03-05',
       stage: 'warm',
@@ -2484,11 +3195,18 @@ function seedDemoData() {
       nextAction: 'Follow up on newsletter idea — offered to share my audience for a collab issue',
       actionDue: '2026-05-10',
       howUseful: 'Huge developer audience, intro to API-first founders, perspective on async-first community tools',
+      convStatus: 'waiting',
+      convPlatform: 'x',
+      convTopic: 'Newsletter collab — sent a draft outline, waiting for his feedback',
+      meetingStatus: 'potential',
+      meetingDate: '2026-06-10',
+      meetingVenue: 'Zoom',
     },
     {
       name: 'Sara Lindqvist',
       codeword: 'VC Sara',
       expertise: 'Venture Capital, FinTech, Deep Tech',
+      location: 'Stockholm, Sweden',
       context: 'Introduced by Alex at the Nordic Founders dinner in Stockholm. She was the only VC who stayed to help clean up.',
       lastSpoken: '2025-11-10',
       stage: 'dormant',
@@ -2508,6 +3226,7 @@ function seedDemoData() {
       name: 'Priya Nair',
       codeword: 'Figma Priya',
       expertise: 'Product Design, Design Systems, UX Research',
+      location: 'Mumbai, India',
       context: 'Workshop facilitator at Config 2024. Stayed behind after the session to chat — incredibly generous with her knowledge.',
       lastSpoken: '2026-04-30',
       stage: 'active',
@@ -2521,6 +3240,9 @@ function seedDemoData() {
       actionType: 'share',
       nextAction: 'Share the design tokens article I bookmarked — directly relevant to her adoption problem',
       howUseful: 'Design system expertise for product redesign, could lead a workshop for the team, book collab potential',
+      convStatus: 'active',
+      convPlatform: 'whatsapp',
+      convTopic: 'She is reviewing my design system draft — very helpful feedback so far',
     },
   ];
 
