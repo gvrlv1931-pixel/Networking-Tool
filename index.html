@@ -13,6 +13,8 @@
     --ink3: #888888;
     --faint: #ddd8cc;
     --red: #c1121f;
+    --amber: #d4820a;
+    --green: #2a6049;
     --mono: 'Courier New', Courier, monospace;
   }
 
@@ -37,13 +39,13 @@
 
   .header-top {
     display: flex;
-    align-items: baseline;
-    gap: 10px;
+    align-items: center;
+    gap: 8px;
     margin-bottom: 10px;
   }
 
   .logo {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 900;
     letter-spacing: -1px;
     text-transform: uppercase;
@@ -51,10 +53,39 @@
     flex: 1;
   }
 
+  .view-toggle {
+    display: flex;
+    gap: 0;
+    border: 1.5px solid var(--ink);
+    overflow: hidden;
+  }
+
+  .view-btn {
+    background: none;
+    border: none;
+    border-right: 1.5px solid var(--ink);
+    color: var(--ink3);
+    font-size: 10px;
+    font-weight: 700;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 5px 9px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .view-btn:last-child { border-right: none; }
+  .view-btn:hover { background: var(--faint); color: var(--ink); }
+  .view-btn.active { background: var(--ink); color: var(--card); }
+
   .count-badge {
     font-family: var(--mono);
     font-size: 11px;
     color: var(--ink3);
+    white-space: nowrap;
   }
 
   /* ── Search ── */
@@ -201,7 +232,6 @@
   .card:hover { box-shadow: 6px 6px 0 var(--ink); transform: translate(-1px,-1px); }
 
   .card-stripe { height: 6px; width: 100%; }
-
   .card-body { padding: 12px 14px 14px; }
 
   .card-top {
@@ -291,8 +321,10 @@
     font-style: italic;
   }
 
-  .card-expertise:hover,
-  .card-expertise-empty:hover { text-decoration: underline; text-decoration-style: dotted; }
+  .card-expertise:hover, .card-expertise-empty:hover {
+    text-decoration: underline;
+    text-decoration-style: dotted;
+  }
 
   .card-context {
     font-size: 11px;
@@ -319,6 +351,53 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+
+  /* ── Action badge on card ── */
+  .card-action-badge {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    margin-bottom: 8px;
+    padding: 6px 8px;
+    border-left: 3px solid var(--amber);
+    background: rgba(212,130,10,0.06);
+    cursor: pointer;
+  }
+
+  .card-action-badge.urgent { border-left-color: var(--red); background: rgba(193,18,31,0.06); }
+
+  .action-type-pill {
+    font-family: var(--mono);
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 1px 5px;
+    border: 1.5px solid currentColor;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .action-text {
+    font-size: 11px;
+    color: var(--ink2);
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+  }
+
+  .action-due {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--ink3);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .action-due.overdue { color: var(--red); font-weight: 700; }
 
   .card-divider {
     border: none;
@@ -402,7 +481,7 @@
     flex-shrink: 0;
   }
 
-  /* ── Inline edit inputs on card ── */
+  /* ── Inline edit ── */
   .inline-input {
     background: #fffef9;
     border: none;
@@ -436,12 +515,11 @@
     grid-column: 1 / -1;
     text-align: center;
     padding: 40px 20px;
-    color: var(--ink3);
     border: 2px dashed var(--faint);
   }
 
-  .no-results-title { font-size: 15px; font-weight: 700; font-family: Georgia, serif; margin-bottom: 6px; color: var(--ink); }
-  .no-results-sub { font-size: 12px; font-style: italic; }
+  .no-results-title { font-size: 15px; font-weight: 700; font-family: Georgia, serif; margin-bottom: 6px; }
+  .no-results-sub { font-size: 12px; font-style: italic; color: var(--ink3); }
 
   /* ── FAB ── */
   .fab {
@@ -469,6 +547,257 @@
 
   .fab:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 rgba(0,0,0,0.25); }
   .fab:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 rgba(0,0,0,0.25); }
+
+  /* ── Overview ── */
+  .overview {
+    padding: 14px 14px 100px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .ov-section { margin-bottom: 24px; }
+
+  .ov-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--ink3);
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--faint);
+  }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  @media (min-width: 480px) { .stat-row { grid-template-columns: repeat(4, 1fr); } }
+
+  .stat-block {
+    background: var(--card);
+    border: 2px solid var(--ink);
+    box-shadow: 3px 3px 0 var(--ink);
+    padding: 12px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 28px;
+    font-weight: 900;
+    font-family: Georgia, serif;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--ink3);
+  }
+
+  .action-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .action-item {
+    background: var(--card);
+    border: 2px solid var(--ink);
+    box-shadow: 2px 2px 0 var(--ink);
+    padding: 10px 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+    transition: box-shadow 0.1s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .action-item:hover { box-shadow: 4px 4px 0 var(--ink); transform: translate(-1px,-1px); }
+
+  .action-item-stripe {
+    width: 4px;
+    align-self: stretch;
+    flex-shrink: 0;
+  }
+
+  .action-item-body { flex: 1; min-width: 0; }
+
+  .action-item-who {
+    font-size: 14px;
+    font-weight: 700;
+    font-family: Georgia, serif;
+    margin-bottom: 2px;
+  }
+
+  .action-item-what {
+    font-size: 12px;
+    color: var(--ink2);
+    margin-bottom: 4px;
+    line-height: 1.4;
+  }
+
+  .action-item-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .action-item-due {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--ink3);
+  }
+
+  .action-item-due.overdue { color: var(--red); font-weight: 700; }
+
+  .action-item-useful {
+    font-size: 11px;
+    color: var(--ink3);
+    font-style: italic;
+    border-left: 2px solid var(--faint);
+    padding-left: 8px;
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+
+  .stage-breakdown { display: flex; flex-direction: column; gap: 6px; }
+
+  .stage-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .stage-row-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: 90px;
+    flex-shrink: 0;
+    color: var(--ink2);
+  }
+
+  .stage-bar-wrap {
+    flex: 1;
+    background: var(--faint);
+    height: 12px;
+    border: 1px solid var(--ink);
+    overflow: hidden;
+  }
+
+  .stage-bar { height: 100%; transition: width 0.4s; }
+
+  .stage-count {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink3);
+    width: 20px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .recent-list { display: flex; flex-direction: column; gap: 6px; }
+
+  .recent-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: var(--card);
+    border: 1.5px solid var(--faint);
+    cursor: pointer;
+    transition: border-color 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .recent-item:hover { border-color: var(--ink); }
+
+  .recent-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .recent-name {
+    font-size: 13px;
+    font-weight: 700;
+    font-family: Georgia, serif;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .recent-date {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink3);
+    flex-shrink: 0;
+  }
+
+  .useful-list { display: flex; flex-direction: column; gap: 6px; }
+
+  .useful-item {
+    padding: 8px 10px;
+    background: var(--card);
+    border: 1.5px solid var(--faint);
+    border-left: 3px solid var(--ink);
+    cursor: pointer;
+    transition: border-color 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .useful-item:hover { border-color: var(--ink); }
+
+  .useful-who {
+    font-size: 12px;
+    font-weight: 700;
+    font-family: Georgia, serif;
+    margin-bottom: 2px;
+  }
+
+  .useful-text { font-size: 12px; color: var(--ink2); line-height: 1.4; }
+
+  .ov-empty {
+    font-size: 12px;
+    color: var(--ink3);
+    font-style: italic;
+    padding: 10px 0;
+  }
+
+  /* ── Map ── */
+  .map-container {
+    width: 100%;
+    height: calc(100dvh - 120px);
+    min-height: 400px;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg);
+  }
+
+  .map-svg { display: block; width: 100%; height: 100%; }
+
+  .map-tooltip {
+    position: fixed;
+    background: var(--ink);
+    color: var(--card);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 6px 10px;
+    pointer-events: none;
+    z-index: 400;
+    white-space: nowrap;
+    display: none;
+  }
 
   /* ── Modal overlay ── */
   .modal-overlay {
@@ -596,9 +925,7 @@
     margin-bottom: 4px;
   }
 
-  .form-input,
-  .form-textarea,
-  .form-select {
+  .form-input, .form-textarea, .form-select {
     width: 100%;
     background: var(--card);
     border: 1.5px solid var(--ink);
@@ -612,12 +939,8 @@
     transition: box-shadow 0.1s;
   }
 
-  .form-input:focus,
-  .form-textarea:focus,
-  .form-select:focus { box-shadow: 3px 3px 0 var(--ink); }
-
-  .form-input::placeholder,
-  .form-textarea::placeholder { color: var(--ink3); font-style: italic; }
+  .form-input:focus, .form-textarea:focus, .form-select:focus { box-shadow: 3px 3px 0 var(--ink); }
+  .form-input::placeholder, .form-textarea::placeholder { color: var(--ink3); font-style: italic; }
   .form-textarea { resize: none; min-height: 72px; line-height: 1.5; }
   .form-textarea.short { min-height: 56px; }
   .form-select { cursor: pointer; }
@@ -670,25 +993,13 @@
 
   .btn:active { transform: translate(2px,2px); }
 
-  .btn-primary {
-    background: var(--ink);
-    color: var(--card);
-    box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
-  }
-
+  .btn-primary { background: var(--ink); color: var(--card); box-shadow: 3px 3px 0 rgba(0,0,0,0.2); }
   .btn-primary:hover { box-shadow: 4px 4px 0 rgba(0,0,0,0.25); transform: translate(-1px,-1px); }
 
   .btn-secondary { background: var(--card); color: var(--ink); }
   .btn-secondary:hover { background: var(--faint); }
 
-  .btn-danger {
-    background: none;
-    border-color: var(--red);
-    color: var(--red);
-    flex: 0;
-    padding: 11px 14px;
-  }
-
+  .btn-danger { background: none; border-color: var(--red); color: var(--red); flex: 0; padding: 11px 14px; }
   .btn-danger:hover { background: var(--red); color: var(--card); }
 
   /* ── Detail modal ── */
@@ -714,14 +1025,7 @@
     letter-spacing: -1px;
   }
 
-  .detail-name {
-    font-size: 22px;
-    font-weight: 900;
-    font-family: Georgia, serif;
-    letter-spacing: -0.5px;
-    margin-bottom: 4px;
-    line-height: 1.1;
-  }
+  .detail-name { font-size: 22px; font-weight: 900; font-family: Georgia, serif; letter-spacing: -0.5px; margin-bottom: 4px; line-height: 1.1; }
 
   .detail-codeword {
     font-family: var(--mono);
@@ -735,10 +1039,7 @@
     margin-bottom: 4px;
   }
 
-  .detail-section {
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--faint);
-  }
+  .detail-section { padding: 12px 14px; border-bottom: 1px solid var(--faint); }
 
   .detail-section-title {
     font-family: var(--mono);
@@ -790,6 +1091,16 @@
   .contact-val { color: var(--ink2); word-break: break-all; }
   .contact-val a { color: var(--ink); text-underline-offset: 3px; }
 
+  /* Detail action block */
+  .detail-action-block {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--faint);
+    border-left: 4px solid var(--amber);
+    background: rgba(212,130,10,0.04);
+  }
+
+  .detail-action-block.urgent { border-left-color: var(--red); background: rgba(193,18,31,0.04); }
+
   /* ── Confirm ── */
   .confirm-overlay {
     position: fixed;
@@ -824,7 +1135,7 @@
   .confirm-box p { font-size: 13px; color: var(--ink2); margin-bottom: 18px; line-height: 1.5; }
   .confirm-actions { display: flex; gap: 8px; }
   .confirm-actions .btn { padding: 10px; }
-  .confirm-actions .btn-danger { flex: 1; border-width: 2px; }
+  .confirm-actions .btn-danger { flex: 1; padding: 10px 14px; }
 
   /* ── Toast ── */
   .toast {
@@ -849,7 +1160,6 @@
 
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  /* ── Highlight ── */
   mark { background: #ffe066; color: var(--ink); padding: 0 1px; border-radius: 0; }
 
   ::-webkit-scrollbar { width: 4px; }
@@ -863,34 +1173,52 @@
 <div class="header">
   <div class="header-top">
     <div class="logo">Network</div>
-    <span class="count-badge" id="countBadge">0 contacts</span>
+    <div class="view-toggle">
+      <button class="view-btn active" data-view="cards">Cards</button>
+      <button class="view-btn" data-view="overview">Overview</button>
+      <button class="view-btn" data-view="map">Map</button>
+    </div>
+    <span class="count-badge" id="countBadge">0</span>
   </div>
-  <div class="search-wrap">
-    <input class="search-input" id="searchInput" type="search"
-      placeholder="Search name, codeword, expertise, context..."
-      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
-    <button class="search-clear" id="searchClear" title="Clear">x</button>
-  </div>
-  <div class="filters-wrap" id="filtersWrap">
-    <button class="filter-chip active" data-filter="all">All</button>
-    <button class="filter-chip" data-filter="recent">Recent</button>
-    <button class="filter-chip" data-filter="no-contact">Overdue</button>
-    <button class="filter-chip" data-filter="expertise">Has expertise</button>
-    <button class="filter-chip" data-filter="no-codeword">No codeword</button>
+  <div id="headerSearch">
+    <div class="search-wrap">
+      <input class="search-input" id="searchInput" type="search"
+        placeholder="Search name, codeword, expertise, action..."
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+      <button class="search-clear" id="searchClear" title="Clear">x</button>
+    </div>
+    <div class="filters-wrap" id="filtersWrap">
+      <button class="filter-chip active" data-filter="all">All</button>
+      <button class="filter-chip" data-filter="action">Has action</button>
+      <button class="filter-chip" data-filter="recent">Recent</button>
+      <button class="filter-chip" data-filter="no-contact">Overdue</button>
+      <button class="filter-chip" data-filter="expertise">Has expertise</button>
+      <button class="filter-chip" data-filter="no-codeword">No codeword</button>
+    </div>
   </div>
 </div>
 
-<!-- Sort bar -->
-<div class="sort-bar">
+<!-- Sort bar (cards view only) -->
+<div class="sort-bar" id="sortBarWrap">
   <span class="sort-label">Sort by:</span>
   <button class="sort-btn active" data-sort="name">A–Z</button>
   <button class="sort-btn" data-sort="name-desc">Z–A</button>
   <button class="sort-btn" data-sort="recent">Last spoken</button>
+  <button class="sort-btn" data-sort="action">Action due</button>
   <button class="sort-btn" data-sort="added">Date added</button>
 </div>
 
-<!-- Grid -->
+<!-- Cards view -->
 <div class="grid" id="grid"></div>
+
+<!-- Overview view -->
+<div id="overviewContainer" style="display:none"></div>
+
+<!-- Map view -->
+<div class="map-container" id="mapContainer" style="display:none"></div>
+
+<!-- Tooltip for map -->
+<div class="map-tooltip" id="mapTooltip"></div>
 
 <!-- FAB -->
 <button class="fab" id="fabBtn" title="New contact (Ctrl+N)">+</button>
@@ -927,6 +1255,38 @@
         <div class="form-group">
           <label class="form-label">Expertise / Role</label>
           <input class="form-input" id="f-expertise" type="text" placeholder="e.g. Product Design, Growth, DevRel" maxlength="100" />
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">Next Action</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Action Type</label>
+            <select class="form-select" id="f-actionType">
+              <option value="">-- none --</option>
+              <option value="message">Send message</option>
+              <option value="reply">Reply</option>
+              <option value="follow-up">Follow up</option>
+              <option value="intro">Make intro</option>
+              <option value="call">Schedule call</option>
+              <option value="meet">Meet in person</option>
+              <option value="share">Share resource</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Due Date</label>
+            <input class="form-input" id="f-actionDue" type="date" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">What to Do</label>
+          <textarea class="form-textarea short" id="f-nextAction" placeholder="e.g. Send intro email connecting her with Jordan re: DevRel role"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">How They Can Help You</label>
+          <textarea class="form-textarea short" id="f-howUseful" placeholder="e.g. Can intro me to climate VCs, has deep PLG expertise for Series A advice"></textarea>
         </div>
       </div>
 
@@ -1044,7 +1404,7 @@
     <p id="confirmText">This will permanently remove this contact.</p>
     <div class="confirm-actions">
       <button class="btn btn-secondary" id="confirmCancel">Keep</button>
-      <button class="btn btn-danger" id="confirmOk" style="flex:1;padding:10px 14px">Delete</button>
+      <button class="btn btn-danger" id="confirmOk">Delete</button>
     </div>
   </div>
 </div>
@@ -1054,16 +1414,16 @@
 const STORAGE_KEY = 'nw_contacts_v1';
 
 const COLORS = [
-  { bg: '#e63946' }, // red
-  { bg: '#f4a261' }, // orange
-  { bg: '#2a9d8f' }, // teal
-  { bg: '#457b9d' }, // blue
-  { bg: '#6d597a' }, // purple
-  { bg: '#e9c46a' }, // yellow
-  { bg: '#264653' }, // dark teal
-  { bg: '#c77dff' }, // violet
-  { bg: '#023e8a' }, // navy
-  { bg: '#606c38' }, // olive
+  { bg: '#e63946' },
+  { bg: '#f4a261' },
+  { bg: '#2a9d8f' },
+  { bg: '#457b9d' },
+  { bg: '#6d597a' },
+  { bg: '#e9c46a' },
+  { bg: '#264653' },
+  { bg: '#c77dff' },
+  { bg: '#023e8a' },
+  { bg: '#606c38' },
 ];
 
 const STAGE_LABELS = {
@@ -1074,6 +1434,28 @@ const STAGE_LABELS = {
   close:   { label: 'Close ally', color: '#6d597a' },
 };
 
+const ACTION_LABELS = {
+  message:   'Msg',
+  reply:     'Rpl',
+  'follow-up': 'Fup',
+  intro:     'Int',
+  call:      'Call',
+  meet:      'Meet',
+  share:     'Shr',
+  other:     'Oth',
+};
+
+const ACTION_FULL = {
+  message:   'Send message',
+  reply:     'Reply',
+  'follow-up': 'Follow up',
+  intro:     'Make intro',
+  call:      'Schedule call',
+  meet:      'Meet in person',
+  share:     'Share resource',
+  other:     'Action',
+};
+
 // ─── State ────────────────────────────────────────────────────
 let contacts = [];
 let editingId = null;
@@ -1081,6 +1463,7 @@ let detailId = null;
 let selectedColor = 0;
 let activeFilter = 'all';
 let activeSort = 'name';
+let activeView = 'cards';
 let searchQuery = '';
 
 // ─── Storage ──────────────────────────────────────────────────
@@ -1107,6 +1490,11 @@ function daysSince(dateStr) {
   return Math.floor((Date.now() - new Date(dateStr + 'T00:00:00').getTime()) / 86400000);
 }
 
+function daysUntil(dateStr) {
+  if (!dateStr) return Infinity;
+  return Math.floor((new Date(dateStr + 'T00:00:00').getTime() - Date.now()) / 86400000);
+}
+
 function friendlyDate(dateStr) {
   if (!dateStr) return 'never';
   const d = daysSince(dateStr);
@@ -1116,6 +1504,16 @@ function friendlyDate(dateStr) {
   if (d < 30) return `${Math.floor(d/7)}w ago`;
   if (d < 365) return `${Math.floor(d/30)}mo ago`;
   return `${Math.floor(d/365)}y ago`;
+}
+
+function friendlyDue(dateStr) {
+  if (!dateStr) return '';
+  const d = daysUntil(dateStr);
+  if (d < 0) return `${Math.abs(d)}d overdue`;
+  if (d === 0) return 'due today';
+  if (d === 1) return 'due tomorrow';
+  if (d < 7) return `due in ${d}d`;
+  return `due ${dateStr}`;
 }
 
 function recencyColor(dateStr) {
@@ -1148,6 +1546,10 @@ function todayStr() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function primaryExpertise(c) {
+  return (c.expertise || '').split(',')[0].trim() || 'Other';
+}
+
 // ─── Filter + Sort ────────────────────────────────────────────
 function getFiltered() {
   let list = [...contacts];
@@ -1155,12 +1557,14 @@ function getFiltered() {
 
   if (q) {
     list = list.filter(c =>
-      [c.name, c.codeword, c.expertise, c.context, c.funFacts, c.notes, c.email, c.stage]
+      [c.name, c.codeword, c.expertise, c.context, c.funFacts,
+       c.notes, c.email, c.stage, c.nextAction, c.howUseful]
         .some(f => (f || '').toLowerCase().includes(q))
     );
   }
 
   switch (activeFilter) {
+    case 'action':      list = list.filter(c => (c.nextAction || c.actionType)); break;
     case 'recent':      list = list.filter(c => daysSince(c.lastSpoken) <= 14); break;
     case 'no-contact':  list = list.filter(c => daysSince(c.lastSpoken) > 60);  break;
     case 'expertise':   list = list.filter(c => (c.expertise || '').trim());    break;
@@ -1172,10 +1576,39 @@ function getFiltered() {
     case 'name-desc': list.sort((a,b) => (b.name||'').localeCompare(a.name||'')); break;
     case 'recent':    list.sort((a,b) => daysSince(a.lastSpoken) - daysSince(b.lastSpoken)); break;
     case 'added':     list.sort((a,b) => (b.addedAt||0) - (a.addedAt||0)); break;
+    case 'action':
+      list.sort((a,b) => {
+        const da = a.actionDue ? new Date(a.actionDue).getTime() : Infinity;
+        const db = b.actionDue ? new Date(b.actionDue).getTime() : Infinity;
+        return da - db;
+      });
+      break;
   }
 
   return list;
 }
+
+// ─── View switching ───────────────────────────────────────────
+function switchView(view) {
+  activeView = view;
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+
+  const isCards = view === 'cards';
+  document.getElementById('headerSearch').style.display = isCards ? '' : 'none';
+  document.getElementById('sortBarWrap').style.display = isCards ? '' : 'none';
+  document.getElementById('grid').style.display = isCards ? '' : 'none';
+  document.getElementById('overviewContainer').style.display = view === 'overview' ? '' : 'none';
+  document.getElementById('mapContainer').style.display = view === 'map' ? '' : 'none';
+
+  if (view === 'cards') renderGrid();
+  if (view === 'overview') renderOverview();
+  if (view === 'map') renderMap();
+}
+
+document.querySelector('.view-toggle').addEventListener('click', e => {
+  const btn = e.target.closest('.view-btn');
+  if (btn) switchView(btn.dataset.view);
+});
 
 // ─── Render grid ──────────────────────────────────────────────
 function renderGrid() {
@@ -1209,7 +1642,22 @@ function renderGrid() {
     const stage = STAGE_LABELS[c.stage] || null;
     const funFacts = (c.funFacts || '').split('\n').filter(f => f.trim());
     const rColor = recencyColor(c.lastSpoken);
-    const expertiseTags = (c.expertise || '').split(',').map(s => s.trim()).filter(Boolean).slice(0, 3);
+
+    const hasAction = c.nextAction || c.actionType;
+    const isOverdue = c.actionDue && daysUntil(c.actionDue) < 0;
+    const dueLabel = friendlyDue(c.actionDue);
+
+    let actionBadge = '';
+    if (hasAction) {
+      const pill = c.actionType ? ACTION_LABELS[c.actionType] || 'Act' : 'Act';
+      const pillColor = isOverdue ? 'var(--red)' : 'var(--amber)';
+      actionBadge = `
+        <div class="card-action-badge${isOverdue ? ' urgent' : ''} open-detail" data-id="${c.id}">
+          <span class="action-type-pill" style="color:${pillColor}">${pill}</span>
+          <span class="action-text">${highlight(c.nextAction || (ACTION_FULL[c.actionType] || 'Action pending'), q)}</span>
+          ${dueLabel ? `<span class="action-due${isOverdue ? ' overdue' : ''}">${dueLabel}</span>` : ''}
+        </div>`;
+    }
 
     return `
       <div class="card" data-id="${c.id}" style="animation-delay:${Math.min(i*0.025,0.25)}s">
@@ -1234,6 +1682,8 @@ function renderGrid() {
           ${c.context ? `<div class="card-context open-detail" data-id="${c.id}">${highlight(c.context, q)}</div>` : ''}
           ${funFacts.length ? `<div class="card-fact open-detail" data-id="${c.id}">${esc(funFacts[0])}</div>` : ''}
 
+          ${actionBadge}
+
           <hr class="card-divider" />
 
           <div class="card-footer">
@@ -1252,9 +1702,8 @@ function renderGrid() {
   attachCardEvents(grid);
 }
 
-// ─── Card events (inline editing, date, detail) ───────────────
+// ─── Card events ──────────────────────────────────────────────
 function attachCardEvents(grid) {
-  // Open detail on card click (not on interactive children)
   grid.querySelectorAll('.card').forEach(card => {
     card.addEventListener('click', e => {
       if (e.target.closest('.editable, .card-edit-btn, .card-date-wrap, .today-btn, .open-detail')) return;
@@ -1262,31 +1711,18 @@ function attachCardEvents(grid) {
     });
   });
 
-  // Context / fun fact → detail
   grid.querySelectorAll('.open-detail').forEach(el => {
-    el.addEventListener('click', e => {
-      e.stopPropagation();
-      openDetail(el.dataset.id);
-    });
+    el.addEventListener('click', e => { e.stopPropagation(); openDetail(el.dataset.id); });
   });
 
-  // Edit button → full modal
   grid.querySelectorAll('.card-edit-btn').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.stopPropagation();
-      openEdit(btn.dataset.id);
-    });
+    btn.addEventListener('click', e => { e.stopPropagation(); openEdit(btn.dataset.id); });
   });
 
-  // Inline editable fields
   grid.querySelectorAll('.editable').forEach(el => {
-    el.addEventListener('click', e => {
-      e.stopPropagation();
-      startInlineEdit(el);
-    });
+    el.addEventListener('click', e => { e.stopPropagation(); startInlineEdit(el); });
   });
 
-  // Date label click → reveal date input
   grid.querySelectorAll('[data-date-id]').forEach(wrap => {
     wrap.addEventListener('click', e => {
       e.stopPropagation();
@@ -1298,21 +1734,15 @@ function attachCardEvents(grid) {
     });
   });
 
-  // Date input change → save
   grid.querySelectorAll('.card-date-input').forEach(input => {
     input.addEventListener('change', e => {
       e.stopPropagation();
       const c = contacts.find(x => x.id === input.dataset.id);
       if (c) { c.lastSpoken = input.value; save(); renderGrid(); toast('Saved'); }
     });
-    input.addEventListener('blur', e => {
-      e.stopPropagation();
-      // If no change was made, just re-render to restore label
-      renderGrid();
-    });
+    input.addEventListener('blur', e => { e.stopPropagation(); renderGrid(); });
   });
 
-  // Today button
   grid.querySelectorAll('.today-btn').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
@@ -1362,11 +1792,7 @@ function startInlineEdit(el) {
       delete el.dataset.editing;
       return;
     }
-    if (val !== originalVal) {
-      c[field] = val;
-      save();
-      toast('Saved');
-    }
+    if (val !== originalVal) { c[field] = val; save(); toast('Saved'); }
     delete el.dataset.editing;
     renderGrid();
   }
@@ -1374,13 +1800,356 @@ function startInlineEdit(el) {
   input.addEventListener('blur', commit);
   input.addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
-    if (e.key === 'Escape') {
-      committed = true;
-      el.innerHTML = originalHTML;
-      delete el.dataset.editing;
-    }
+    if (e.key === 'Escape') { committed = true; el.innerHTML = originalHTML; delete el.dataset.editing; }
   });
 }
+
+// ─── Overview ─────────────────────────────────────────────────
+function renderOverview() {
+  const el = document.getElementById('overviewContainer');
+
+  const total = contacts.length;
+  const recent = contacts.filter(c => daysSince(c.lastSpoken) <= 14).length;
+  const overdue = contacts.filter(c => daysSince(c.lastSpoken) > 60).length;
+  const withAction = contacts.filter(c => c.nextAction || c.actionType).length;
+
+  // Pending actions sorted by due date (overdue first, then by date, then undated)
+  const actions = contacts
+    .filter(c => c.nextAction || c.actionType)
+    .sort((a, b) => {
+      const da = a.actionDue ? new Date(a.actionDue).getTime() : Infinity;
+      const db = b.actionDue ? new Date(b.actionDue).getTime() : Infinity;
+      return da - db;
+    });
+
+  // Stage breakdown
+  const stageCounts = {};
+  Object.keys(STAGE_LABELS).forEach(k => stageCounts[k] = 0);
+  contacts.forEach(c => { if (c.stage && stageCounts[c.stage] !== undefined) stageCounts[c.stage]++; });
+  const maxStage = Math.max(1, ...Object.values(stageCounts));
+
+  // Recently spoken (top 6, with lastSpoken set)
+  const recentlySeen = [...contacts]
+    .filter(c => c.lastSpoken)
+    .sort((a, b) => daysSince(a.lastSpoken) - daysSince(b.lastSpoken))
+    .slice(0, 6);
+
+  // How they can help (contacts with howUseful filled)
+  const useful = contacts.filter(c => (c.howUseful || '').trim());
+
+  el.innerHTML = `
+    <div class="overview">
+
+      <div class="ov-section">
+        <div class="ov-title">Network at a Glance</div>
+        <div class="stat-row">
+          <div class="stat-block">
+            <div class="stat-num">${total}</div>
+            <div class="stat-label">Total</div>
+          </div>
+          <div class="stat-block">
+            <div class="stat-num" style="color:#2a9d8f">${recent}</div>
+            <div class="stat-label">Spoke recently</div>
+          </div>
+          <div class="stat-block">
+            <div class="stat-num" style="color:#888">${overdue}</div>
+            <div class="stat-label">Overdue (60d+)</div>
+          </div>
+          <div class="stat-block">
+            <div class="stat-num" style="color:#d4820a">${withAction}</div>
+            <div class="stat-label">Actions pending</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ov-section">
+        <div class="ov-title">Relationship Stages</div>
+        <div class="stage-breakdown">
+          ${Object.entries(STAGE_LABELS).map(([key, st]) => `
+            <div class="stage-row">
+              <div class="stage-row-label">${st.label}</div>
+              <div class="stage-bar-wrap">
+                <div class="stage-bar" style="width:${Math.round((stageCounts[key]/maxStage)*100)}%;background:${st.color}"></div>
+              </div>
+              <div class="stage-count">${stageCounts[key]}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <div class="ov-section">
+        <div class="ov-title">Pending Actions</div>
+        ${actions.length ? `
+          <div class="action-list">
+            ${actions.map(c => {
+              const col = COLORS[c.colorIdx ?? 0];
+              const isOv = c.actionDue && daysUntil(c.actionDue) < 0;
+              const dueStr = friendlyDue(c.actionDue);
+              const typeLabel = ACTION_FULL[c.actionType] || (c.actionType ? c.actionType : 'Action');
+              return `
+                <div class="action-item" data-id="${c.id}">
+                  <div class="action-item-stripe" style="background:${col.bg}"></div>
+                  <div class="action-item-body">
+                    <div class="action-item-who">${esc(c.name)}</div>
+                    <div class="action-item-what">
+                      ${c.actionType ? `<span class="action-type-pill" style="color:${isOv ? 'var(--red)' : 'var(--amber)'};margin-right:6px">${ACTION_LABELS[c.actionType] || c.actionType}</span>` : ''}
+                      ${esc(c.nextAction || typeLabel)}
+                    </div>
+                    <div class="action-item-meta">
+                      ${dueStr ? `<span class="action-item-due${isOv ? ' overdue' : ''}">${dueStr}</span>` : ''}
+                      ${c.expertise ? `<span style="font-family:var(--mono);font-size:9px;color:var(--ink3)">${esc(c.expertise.split(',')[0])}</span>` : ''}
+                    </div>
+                    ${c.howUseful ? `<div class="action-item-useful">${esc(c.howUseful)}</div>` : ''}
+                  </div>
+                </div>`;
+            }).join('')}
+          </div>` : '<div class="ov-empty">No pending actions. Add one by editing a contact.</div>'}
+      </div>
+
+      <div class="ov-section">
+        <div class="ov-title">Recently Spoken To</div>
+        ${recentlySeen.length ? `
+          <div class="recent-list">
+            ${recentlySeen.map(c => {
+              const col = COLORS[c.colorIdx ?? 0];
+              return `
+                <div class="recent-item" data-id="${c.id}">
+                  <div class="recent-dot" style="background:${recencyColor(c.lastSpoken)}"></div>
+                  <div class="recent-name">${esc(c.name)}</div>
+                  <div class="recent-date">${friendlyDate(c.lastSpoken)}</div>
+                </div>`;
+            }).join('')}
+          </div>` : '<div class="ov-empty">No conversations logged yet.</div>'}
+      </div>
+
+      ${useful.length ? `
+        <div class="ov-section">
+          <div class="ov-title">How Your Network Can Help You</div>
+          <div class="useful-list">
+            ${useful.map(c => `
+              <div class="useful-item" data-id="${c.id}">
+                <div class="useful-who">${esc(c.name)}</div>
+                <div class="useful-text">${esc(c.howUseful)}</div>
+              </div>`).join('')}
+          </div>
+        </div>` : ''}
+
+    </div>`;
+
+  // Click listeners for overview items
+  el.querySelectorAll('[data-id]').forEach(item => {
+    item.addEventListener('click', () => openDetail(item.dataset.id));
+  });
+}
+
+// ─── Mind Map ─────────────────────────────────────────────────
+function renderMap() {
+  const container = document.getElementById('mapContainer');
+  const W = container.clientWidth;
+  const H = container.clientHeight;
+
+  const list = contacts; // map always shows all contacts
+
+  if (list.length === 0) {
+    container.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--ink3);font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:1px">
+        No contacts to map
+      </div>`;
+    return;
+  }
+
+  // Group by primary expertise
+  const clusterMap = {};
+  list.forEach(c => {
+    const key = primaryExpertise(c);
+    if (!clusterMap[key]) clusterMap[key] = [];
+    clusterMap[key].push(c);
+  });
+
+  const clusterKeys = Object.keys(clusterMap);
+  const N = clusterKeys.length;
+
+  const cx = W / 2;
+  const cy = H / 2;
+
+  // Scale cluster radius based on number of clusters
+  const clusterR = Math.min(W * 0.34, H * 0.36, N <= 3 ? 160 : N <= 6 ? 210 : 260);
+  // Contact node radius from cluster center
+  const nodeR = 20;
+
+  let svgLines = '';
+  let svgClusters = '';
+  let svgNodes = '';
+  let svgNames = '';
+
+  // Background dot grid (subtle)
+  let dots = '';
+  for (let x = 0; x < W; x += 30) {
+    for (let y = 0; y < H; y += 30) {
+      dots += `<circle cx="${x}" cy="${y}" r="1" fill="#c8c3b8" />`;
+    }
+  }
+
+  // Center hub
+  svgClusters += `
+    <rect x="${cx-40}" y="${cy-18}" width="80" height="36"
+      fill="var(--ink)" />
+    <text x="${cx}" y="${cy+5}" text-anchor="middle"
+      font-size="11" font-weight="900" fill="white"
+      font-family="'Courier New',monospace" letter-spacing="1.5">NETWORK</text>`;
+
+  clusterKeys.forEach((key, i) => {
+    const angle = (i / N) * Math.PI * 2 - Math.PI / 2;
+    const clx = cx + clusterR * Math.cos(angle);
+    const cly = cy + clusterR * Math.sin(angle);
+
+    const members = clusterMap[key];
+    const M = members.length;
+
+    // Spoke from center to cluster
+    svgLines += `
+      <line x1="${cx}" y1="${cy}" x2="${clx}" y2="${cly}"
+        stroke="#c8c3b8" stroke-width="1.5" stroke-dasharray="5,4" />`;
+
+    // Contact positions around cluster
+    const contactRing = M === 1 ? 0 : Math.max(55, Math.min(85, M * 18));
+
+    members.forEach((c, j) => {
+      let mx, my;
+      if (M === 1) {
+        // Single contact: offset slightly further from center along same spoke
+        mx = cx + (clusterR + 80) * Math.cos(angle);
+        my = cy + (clusterR + 80) * Math.sin(angle);
+      } else {
+        // Fan around cluster, biased away from center
+        const spread = Math.min(Math.PI * 1.2, (M - 1) * 0.45);
+        const startAngle = angle - spread / 2;
+        const memberAngle = M === 1 ? angle : startAngle + (j / (M - 1)) * spread;
+        mx = clx + contactRing * Math.cos(memberAngle + Math.PI / 2 * 0);
+        my = cly + contactRing * Math.sin(memberAngle + Math.PI / 2 * 0);
+        // Actually use a full ring for cleaner look
+        const fullAngle = (j / M) * Math.PI * 2 - Math.PI / 2;
+        mx = clx + contactRing * Math.cos(fullAngle);
+        my = cly + contactRing * Math.sin(fullAngle);
+      }
+
+      const col = COLORS[c.colorIdx ?? 0];
+      const hasAction = c.nextAction || c.actionType;
+      const isOv = c.actionDue && daysUntil(c.actionDue) < 0;
+
+      // Line from cluster to contact
+      svgLines += `
+        <line x1="${clx}" y1="${cly}" x2="${mx}" y2="${my}"
+          stroke="${col.bg}70" stroke-width="1.5" />`;
+
+      // Contact circle (main node)
+      svgNodes += `
+        <circle cx="${mx}" cy="${my}" r="${nodeR}" fill="${col.bg}"
+          stroke="var(--ink)" stroke-width="2"
+          class="map-node" data-id="${c.id}" style="cursor:pointer">
+          <title>${esc(c.name)}${c.expertise ? ' — ' + esc(c.expertise.split(',')[0]) : ''}</title>
+        </circle>
+        <text x="${mx}" y="${my}" text-anchor="middle" dominant-baseline="middle"
+          font-size="10" font-weight="900" fill="white"
+          font-family="Georgia,serif" pointer-events="none">${initials(c.name)}</text>`;
+
+      // Action indicator dot
+      if (hasAction) {
+        const dotColor = isOv ? '#c1121f' : '#d4820a';
+        svgNodes += `
+          <circle cx="${mx + nodeR - 3}" cy="${my - nodeR + 3}" r="6"
+            fill="${dotColor}" stroke="white" stroke-width="1.5"
+            pointer-events="none" />`;
+      }
+
+      // Name below node
+      const firstName = (c.name || '').split(' ')[0];
+      svgNames += `
+        <text x="${mx}" y="${my + nodeR + 13}" text-anchor="middle"
+          font-size="9" fill="var(--ink2)"
+          font-family="'Courier New',monospace" pointer-events="none">${esc(firstName)}</text>`;
+    });
+
+    // Cluster label (rendered after contacts so it's on top)
+    const shortKey = key.length > 16 ? key.slice(0, 14) + '..' : key;
+    const labelW = Math.max(shortKey.length * 6.5 + 16, 56);
+    svgClusters += `
+      <rect x="${clx - labelW/2}" y="${cly - 16}" width="${labelW}" height="32"
+        fill="var(--bg)" stroke="var(--ink)" stroke-width="2" />
+      <text x="${clx}" y="${cly - 3}" text-anchor="middle"
+        font-size="9" font-weight="700" fill="var(--ink)"
+        font-family="'Courier New',monospace" letter-spacing="0.5"
+        pointer-events="none">${esc(shortKey.toUpperCase())}</text>
+      <text x="${clx}" y="${cly + 10}" text-anchor="middle"
+        font-size="8" fill="var(--ink3)"
+        font-family="'Courier New',monospace"
+        pointer-events="none">${M} ${M === 1 ? 'person' : 'people'}</text>`;
+  });
+
+  container.innerHTML = `
+    <svg width="${W}" height="${H}" class="map-svg">
+      <g opacity="0.5">${dots}</g>
+      ${svgLines}
+      ${svgClusters}
+      ${svgNodes}
+      ${svgNames}
+    </svg>`;
+
+  // Legend
+  const legend = document.createElement('div');
+  legend.style.cssText = `
+    position:absolute; bottom:16px; left:14px;
+    font-family:var(--mono); font-size:9px; color:var(--ink3);
+    text-transform:uppercase; letter-spacing:0.5px;
+    display:flex; gap:14px; align-items:center;
+  `;
+  legend.innerHTML = `
+    <span style="display:flex;align-items:center;gap:4px">
+      <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#d4820a"></span>
+      Action pending
+    </span>
+    <span style="display:flex;align-items:center;gap:4px">
+      <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#c1121f"></span>
+      Overdue
+    </span>
+    <span>Click node to view</span>`;
+  container.style.position = 'relative';
+  container.appendChild(legend);
+
+  // Node click → open detail
+  container.querySelectorAll('.map-node').forEach(node => {
+    node.addEventListener('click', () => openDetail(node.dataset.id));
+
+    // Tooltip
+    node.addEventListener('mouseenter', e => {
+      const c = contacts.find(x => x.id === node.dataset.id);
+      if (!c) return;
+      const tt = document.getElementById('mapTooltip');
+      tt.innerHTML = `<strong>${esc(c.name)}</strong>` +
+        (c.expertise ? `<br><span style="color:#aaa">${esc(c.expertise.split(',')[0])}</span>` : '') +
+        (c.nextAction ? `<br><span style="color:#d4820a">${esc((c.nextAction).slice(0,40))}</span>` : '');
+      tt.style.display = 'block';
+    });
+
+    node.addEventListener('mousemove', e => {
+      const tt = document.getElementById('mapTooltip');
+      tt.style.left = (e.clientX + 14) + 'px';
+      tt.style.top = (e.clientY - 10) + 'px';
+    });
+
+    node.addEventListener('mouseleave', () => {
+      document.getElementById('mapTooltip').style.display = 'none';
+    });
+  });
+}
+
+// Re-render map on resize
+let mapResizeTimer;
+window.addEventListener('resize', () => {
+  if (activeView === 'map') {
+    clearTimeout(mapResizeTimer);
+    mapResizeTimer = setTimeout(renderMap, 150);
+  }
+});
 
 // ─── Color row ────────────────────────────────────────────────
 function buildColorRow() {
@@ -1405,7 +2174,8 @@ function openEdit(id) {
   buildColorRow();
 
   const fields = ['name','codeword','expertise','context','lastSpoken','stage',
-    'painPoints','goals','funFacts','email','phone','linkedin','twitter','instagram','website','notes'];
+    'painPoints','goals','funFacts','email','phone','linkedin','twitter','instagram',
+    'website','notes','actionType','nextAction','actionDue','howUseful'];
   fields.forEach(f => {
     const el = document.getElementById('f-' + f);
     if (el) el.value = c ? (c[f] || '') : '';
@@ -1435,7 +2205,8 @@ document.getElementById('saveBtn').addEventListener('click', () => {
   }
 
   const fields = ['name','codeword','expertise','context','lastSpoken','stage',
-    'painPoints','goals','funFacts','email','phone','linkedin','twitter','instagram','website','notes'];
+    'painPoints','goals','funFacts','email','phone','linkedin','twitter','instagram',
+    'website','notes','actionType','nextAction','actionDue','howUseful'];
   const data = {};
   fields.forEach(f => { data[f] = document.getElementById('f-' + f).value.trim(); });
   data.colorIdx = selectedColor;
@@ -1451,7 +2222,9 @@ document.getElementById('saveBtn').addEventListener('click', () => {
 
   save();
   closeEdit();
-  renderGrid();
+  if (activeView === 'cards') renderGrid();
+  else if (activeView === 'overview') renderOverview();
+  else renderMap();
 });
 
 document.getElementById('cancelBtn').addEventListener('click', closeEdit);
@@ -1476,7 +2249,9 @@ document.getElementById('confirmOk').addEventListener('click', () => {
   save();
   document.getElementById('confirmOverlay').classList.remove('open');
   closeEdit();
-  renderGrid();
+  if (activeView === 'cards') renderGrid();
+  else if (activeView === 'overview') renderOverview();
+  else renderMap();
   toast('Deleted');
 });
 
@@ -1492,13 +2267,16 @@ function openDetail(id) {
   const expertiseTags = (c.expertise || '').split(',').map(s => s.trim()).filter(Boolean);
 
   const contactItems = [
-    { label: 'Email',     val: c.email,     href: c.email    ? `mailto:${c.email}` : null },
-    { label: 'Phone',     val: c.phone,     href: c.phone    ? `tel:${c.phone}`    : null },
+    { label: 'Email',     val: c.email,     href: c.email ? `mailto:${c.email}` : null },
+    { label: 'Phone',     val: c.phone,     href: c.phone ? `tel:${c.phone}`    : null },
     { label: 'LinkedIn',  val: c.linkedin  },
     { label: 'X/Twitter', val: c.twitter   },
     { label: 'Instagram', val: c.instagram },
     { label: 'Website',   val: c.website   },
   ].filter(x => x.val);
+
+  const hasAction = c.nextAction || c.actionType;
+  const isOv = c.actionDue && daysUntil(c.actionDue) < 0;
 
   document.getElementById('detailBody').innerHTML = `
     <div class="detail-hero" style="border-left:6px solid ${col.bg}">
@@ -1510,6 +2288,25 @@ function openDetail(id) {
         ${stage ? `<div class="stage-tag" style="color:${stage.color};display:inline-block;margin-top:6px">${stage.label}</div>` : ''}
       </div>
     </div>
+
+    ${hasAction ? `
+    <div class="detail-action-block${isOv ? ' urgent' : ''}">
+      <div class="detail-section-title" style="margin-bottom:6px">Next Action</div>
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px">
+        ${c.actionType ? `<span class="action-type-pill" style="color:${isOv ? 'var(--red)' : 'var(--amber)'}">${ACTION_FULL[c.actionType] || c.actionType}</span>` : ''}
+        ${c.actionDue ? `<span class="action-due${isOv ? ' overdue' : ''}">${friendlyDue(c.actionDue)} (${c.actionDue})</span>` : ''}
+      </div>
+      ${c.nextAction ? `<div class="detail-text">${esc(c.nextAction)}</div>` : ''}
+      ${c.howUseful ? `
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--faint)">
+          <div class="detail-section-title" style="margin-bottom:4px">How they can help you</div>
+          <div class="detail-text">${esc(c.howUseful)}</div>
+        </div>` : ''}
+    </div>` : (c.howUseful ? `
+    <div class="detail-section">
+      <div class="detail-section-title">How They Can Help You</div>
+      <div class="detail-text">${esc(c.howUseful)}</div>
+    </div>` : '')}
 
     ${c.context ? `
     <div class="detail-section">
@@ -1562,9 +2359,7 @@ function openDetail(id) {
           <div class="contact-item">
             <span class="contact-label-tag">${item.label}</span>
             <span class="contact-val">
-              ${item.href
-                ? `<a href="${esc(item.href)}">${esc(item.val)}</a>`
-                : esc(item.val)}
+              ${item.href ? `<a href="${esc(item.href)}">${esc(item.val)}</a>` : esc(item.val)}
             </span>
           </div>`).join('')}
       </div>
@@ -1590,9 +2385,7 @@ document.getElementById('detailOverlay').addEventListener('click', e => {
   if (e.target === document.getElementById('detailOverlay')) closeDetail();
 });
 document.getElementById('detailEditBtn').addEventListener('click', () => {
-  const id = detailId;
-  closeDetail();
-  openEdit(id);
+  const id = detailId; closeDetail(); openEdit(id);
 });
 
 // ─── FAB ──────────────────────────────────────────────────────
@@ -1647,15 +2440,8 @@ document.addEventListener('keydown', e => {
       closeDetail();
     }
   }
-  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-    e.preventDefault();
-    searchInput.focus();
-    searchInput.select();
-  }
-  if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
-    e.preventDefault();
-    openEdit(null);
-  }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); searchInput.focus(); searchInput.select(); }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'n') { e.preventDefault(); openEdit(null); }
 });
 
 // ─── Seed demo data ───────────────────────────────────────────
@@ -1675,6 +2461,10 @@ function seedDemoData() {
       linkedin: 'linkedin.com/in/mayachen',
       twitter: '@mayabuilds',
       colorIdx: 0,
+      actionType: 'intro',
+      nextAction: 'Intro her to Jordan — he needs GTM help and she loves community-led growth',
+      actionDue: '2026-05-15',
+      howUseful: 'Deep PLG expertise, knows every growth hacker in SaaS, can advise on Series A positioning',
     },
     {
       name: 'Jordan Okafor',
@@ -1690,6 +2480,10 @@ function seedDemoData() {
       twitter: '@jordandevrel',
       website: 'jordanokafor.com',
       colorIdx: 2,
+      actionType: 'follow-up',
+      nextAction: 'Follow up on newsletter idea — offered to share my audience for a collab issue',
+      actionDue: '2026-05-10',
+      howUseful: 'Huge developer audience, intro to API-first founders, perspective on async-first community tools',
     },
     {
       name: 'Sara Lindqvist',
@@ -1705,6 +2499,10 @@ function seedDemoData() {
       linkedin: 'linkedin.com/in/saralindqvist',
       phone: '+46 70 000 0000',
       colorIdx: 3,
+      actionType: 'message',
+      nextAction: 'Reconnect — it has been 6 months, send a warm check-in with the climate fintech angle',
+      actionDue: '2026-04-20',
+      howUseful: 'Climate fintech deal flow, LP network, strategic advice on fundraising narrative for deep tech',
     },
     {
       name: 'Priya Nair',
@@ -1720,6 +2518,9 @@ function seedDemoData() {
       instagram: '@priyadesigns',
       linkedin: 'linkedin.com/in/priyanair',
       colorIdx: 7,
+      actionType: 'share',
+      nextAction: 'Share the design tokens article I bookmarked — directly relevant to her adoption problem',
+      howUseful: 'Design system expertise for product redesign, could lead a workshop for the team, book collab potential',
     },
   ];
 
