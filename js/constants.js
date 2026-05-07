@@ -104,6 +104,66 @@ const GEO_CITIES = {
   'brisbane': [91.2, 62.5], 'perth': [82.2, 67.5], 'auckland': [98.6, 70.5],
 };
 
+// ─── Field Taxonomy ───────────────────────────────────────────
+// Used by mind map and overview for hierarchical categorisation
+const FIELD_TAXONOMY = [
+  { id: 'technology', label: 'Technology',      color: '#457b9d',
+    sub: ['Computer Science', 'AI', 'Software', 'Engineering', 'Data Science', 'Product', 'Cybersecurity', 'DevOps', 'Tech'] },
+  { id: 'business',   label: 'Business',         color: '#e63946',
+    sub: ['Marketing', 'Sales', 'Business Development', 'Strategy', 'Consulting', 'Operations', 'Entrepreneurship', 'Startup', 'Management', 'Brand'] },
+  { id: 'finance',    label: 'Finance',           color: '#f4a261',
+    sub: ['Finance', 'Investment', 'Banking', 'Fintech', 'Accounting', 'Venture Capital', 'Economics', 'ESG'] },
+  { id: 'sciences',   label: 'Sciences',          color: '#2a9d8f',
+    sub: ['Climate Sciences', 'Climate', 'Environmental', 'Life Sciences', 'Research', 'Physics', 'Biology', 'Chemistry'] },
+  { id: 'creative',   label: 'Creative',          color: '#9b5de5',
+    sub: ['Design', 'UX', 'Arts', 'Media', 'Content', 'Architecture', 'Photography', 'Film'] },
+  { id: 'people',     label: 'People & Culture',  color: '#606c38',
+    sub: ['HR', 'Human Resources', 'Recruiting', 'Healthcare', 'Education', 'Psychology', 'Learning'] },
+  { id: 'impact',     label: 'Policy & Impact',   color: '#264653',
+    sub: ['Policy', 'NGO', 'Nonprofit', 'Government', 'Sustainability', 'International Relations'] },
+];
+
+// Classify a free-text expertise string into taxonomy clusters + subclusters.
+// Returns array of { cluster, sub } — one per matched field.
+function classifyExpertise(expertiseStr) {
+  const parts = (expertiseStr || '').split(',').map(s => s.trim()).filter(Boolean);
+  const results = [];
+  const seen = new Set();
+
+  parts.forEach(part => {
+    const partLow = part.toLowerCase();
+    let matched = false;
+
+    for (const cluster of FIELD_TAXONOMY) {
+      for (const sub of cluster.sub) {
+        const subLow = sub.toLowerCase();
+        const words = subLow.split(' ').filter(w => w.length > 3);
+        if (partLow.includes(subLow) || subLow.includes(partLow) ||
+            words.some(w => partLow.includes(w))) {
+          const key = cluster.id + '::' + sub;
+          if (!seen.has(key)) { seen.add(key); results.push({ cluster, sub }); }
+          matched = true;
+          break;
+        }
+      }
+      if (matched) break;
+    }
+
+    if (!matched && part) {
+      const key = 'other::' + part;
+      if (!seen.has(key)) {
+        seen.add(key);
+        results.push({ cluster: { id: 'other', label: 'Other', color: '#888888', sub: [] }, sub: part });
+      }
+    }
+  });
+
+  if (results.length === 0) {
+    results.push({ cluster: { id: 'other', label: 'Other', color: '#888888', sub: [] }, sub: 'Other' });
+  }
+  return results;
+}
+
 function lookupCity(locationStr) {
   if (!locationStr) return null;
   const low = locationStr.toLowerCase();

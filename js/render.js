@@ -159,7 +159,6 @@ function getFiltered() {
   switch (activeFilter) {
     case 'action':       list = list.filter(c => (c.nextAction || c.actionType)); break;
     case 'recent':       list = list.filter(c => daysSince(c.lastSpoken) <= 14); break;
-    case 'no-contact':   list = list.filter(c => daysSince(c.lastSpoken) > 60);  break;
     case 'professional': list = list.filter(c => c.networkType === 'professional'); break;
     case 'personal':     list = list.filter(c => c.networkType === 'personal'); break;
     case 'both':         list = list.filter(c => c.networkType === 'both'); break;
@@ -415,35 +414,20 @@ function startInlineEdit(el) {
 function renderOverview() {
   const el = document.getElementById('overviewContainer');
 
+  const todayIso = todayStr();
   const total = contacts.length;
   const recent = contacts.filter(c => daysSince(c.lastSpoken) <= 14).length;
-  const overdue = contacts.filter(c => daysSince(c.lastSpoken) > 60).length;
   const withAction = contacts.filter(c => c.nextAction || c.actionType).length;
 
-  // People by field
-  const fieldMap = {};
-  contacts.forEach(c => {
-    const fields = (c.expertise || '').split(',').map(s => s.trim()).filter(Boolean);
-    if (fields.length === 0) {
-      if (!fieldMap['Other']) fieldMap['Other'] = [];
-      fieldMap['Other'].push(c);
-    } else {
-      fields.forEach(f => {
-        if (!fieldMap[f]) fieldMap[f] = [];
-        fieldMap[f].push(c);
-      });
-    }
-  });
-  const sortedFields = Object.entries(fieldMap).sort((a, b) => b[1].length - a[1].length);
-
-  // Upcoming meetings
-  const todayIso = todayStr();
+  // ── Upcoming meetings ──────────────────────────────────────
   const upcomingMeetings = contacts
     .filter(c => c.meetingDate && c.meetingStatus && c.meetingDate >= todayIso)
     .sort((a, b) => (a.meetingDate > b.meetingDate ? 1 : -1))
-    .slice(0, 5);
+    .slice(0, 6);
 
-  // Pending actions sorted by due date
+  // ── Action points grouped by urgency ──────────────────────
+  const now = Date.now();
+  const DAY = 86400000;
   const actions = contacts
     .filter(c => c.nextAction || c.actionType)
     .sort((a, b) => {
@@ -452,88 +436,150 @@ function renderOverview() {
       return da - db;
     });
 
-  el.innerHTML = `
-    <div class="overview">
+  function actionGroup(c) {
+    if (!c.actionDue) return 'later';
+    const ms = new Date(c.actionDue).getTime() - now;
+    if (ms <= 0) return 'today';
+    if (ms <= 7 * DAY) return 'week';
+    if (ms <= 30 * DAY) return 'month';
+    return 'later';
+  }
 
-      ${sortedFields.length ? `
-      <div class="ov-section">
-        <div class="ov-title">People by Field</div>
-        <div class="field-clusters">
-          ${sortedFields.map(([field, people]) => `
-            <div class="field-cluster">
-              <div class="field-cluster-heading">${esc(field)} <span class="field-cluster-count">${people.length}</span></div>
-              <div class="field-cluster-names">
-                ${people.map(c => {
-                  const col = COLORS[c.colorIdx ?? 0];
-                  return `<span class="field-cluster-name" data-id="${c.id}" style="border-color:${col.bg};color:${col.bg}">${esc(c.name)}</span>`;
-                }).join('')}
-              </div>
-            </div>`).join('')}
+  const actionGroups = {
+    today: { label: '🔥 Today & Overdue', items: [] },
+    week:  { label: '⚡ This Week',        items: [] },
+    month: { label: '◎ This Month',        items: [] },
+    later: { label: '· Later',             items: [] },
+  };
+  actions.forEach(c => actionGroups[actionGroup(c)].items.push(c));
+
+  function actionItemHTML(c) {
+    const col = COLORS[c.colorIdx ?? 0];
+    const isOv = c.actionDue && daysUntil(c.actionDue) < 0;
+    const dueStr = friendlyDue(c.actionDue);
+    const firstName = c.name.split(' ')[0];
+    const typeLabel = ACTION_FULL[c.actionType] || (c.actionType ? c.actionType : 'Action');
+    const verb = c.actionType === 'message' ? 'Message' :
+                 c.actionType === 'reply' ? 'Reply to' :
+                 c.actionType === 'follow-up' ? 'Follow up with' :
+                 c.actionType === 'call' ? 'Call' :
+                 c.actionType === 'meet' ? 'Meet' :
+                 c.actionType === 'intro' ? 'Intro' :
+                 c.actionType === 'share' ? 'Share with' : 'Action:';
+    return `<div class="ov-task" data-id="${c.id}">
+      <div class="ov-task-stripe" style="background:${col.bg}"></div>
+      <div class="ov-task-body">
+        <div class="ov-task-main">
+          <span class="ov-task-verb">${verb}</span>
+          <span class="ov-task-who" style="color:${col.bg}">${esc(firstName)}</span>
+          ${c.nextAction ? `<span class="ov-task-what"> — ${esc(c.nextAction)}</span>` : ''}
         </div>
-      </div>` : ''}
-
-      <div class="ov-section">
-        <div class="ov-title">Network at a Glance</div>
-        <div class="stat-row">
-          <div class="stat-block">
-            <div class="stat-num">${total}</div>
-            <div class="stat-label">Total</div>
-          </div>
-          <div class="stat-block">
-            <div class="stat-num" style="color:#2a9d8f">${recent}</div>
-            <div class="stat-label">Spoke recently</div>
-          </div>
-          <div class="stat-block">
-            <div class="stat-num" style="color:#888">${overdue}</div>
-            <div class="stat-label">Overdue (60d+)</div>
-          </div>
-          <div class="stat-block">
-            <div class="stat-num" style="color:#d4820a">${withAction}</div>
-            <div class="stat-label">Actions pending</div>
-          </div>
-        </div>
+        ${c.howUseful ? `<div class="ov-task-note">${esc(c.howUseful)}</div>` : ''}
       </div>
+      ${dueStr ? `<div class="ov-task-due${isOv ? ' urgent' : ''}">${dueStr}</div>` : ''}
+    </div>`;
+  }
 
-      <div class="ov-section">
-        <div class="ov-title">Pending Actions</div>
-        ${actions.length ? `
-          <div class="action-list">
-            ${actions.map(c => {
-              const col = COLORS[c.colorIdx ?? 0];
-              const isOv = c.actionDue && daysUntil(c.actionDue) < 0;
-              const dueStr = friendlyDue(c.actionDue);
-              const typeLabel = ACTION_FULL[c.actionType] || (c.actionType ? c.actionType : 'Action');
-              return `
-                <div class="action-item" data-id="${c.id}">
-                  <div class="action-item-stripe" style="background:${col.bg}"></div>
-                  <div class="action-item-body">
-                    <div class="action-item-who">${esc(c.name)}</div>
-                    <div class="action-item-what">
-                      ${c.actionType ? `<span class="action-type-pill" style="color:${isOv ? 'var(--red)' : 'var(--amber)'};margin-right:6px">${ACTION_LABELS[c.actionType] || c.actionType}</span>` : ''}
-                      ${esc(c.nextAction || typeLabel)}
-                    </div>
-                    <div class="action-item-meta">
-                      ${dueStr ? `<span class="action-item-due${isOv ? ' overdue' : ''}">${dueStr}</span>` : ''}
-                      ${c.expertise ? `<span style="font-family:var(--mono);font-size:9px;color:var(--ink3)">${esc(c.expertise.split(',')[0])}</span>` : ''}
-                    </div>
-                    ${c.howUseful ? `<div class="action-item-useful">${esc(c.howUseful)}</div>` : ''}
-                  </div>
-                </div>`;
-            }).join('')}
-          </div>` : '<div class="ov-empty">No pending actions. Add one by editing a contact.</div>'}
+  const actionsHTML = Object.values(actionGroups)
+    .filter(g => g.items.length > 0)
+    .map(g => `
+      <div class="ov-action-group">
+        <div class="ov-action-group-label">${g.label}</div>
+        ${g.items.map(actionItemHTML).join('')}
+      </div>`).join('');
+
+  // ── People by field (hierarchical) ────────────────────────
+  const clusterTree = {};
+  contacts.forEach(c => {
+    classifyExpertise(c.expertise).forEach(({ cluster, sub }) => {
+      if (!clusterTree[cluster.id]) clusterTree[cluster.id] = { meta: cluster, subs: {} };
+      if (!clusterTree[cluster.id].subs[sub]) clusterTree[cluster.id].subs[sub] = [];
+      if (!clusterTree[cluster.id].subs[sub].find(x => x.id === c.id))
+        clusterTree[cluster.id].subs[sub].push(c);
+    });
+  });
+
+  const sortedClusters = Object.values(clusterTree)
+    .sort((a, b) => {
+      const ca = Object.values(a.subs).reduce((n, arr) => n + arr.length, 0);
+      const cb = Object.values(b.subs).reduce((n, arr) => n + arr.length, 0);
+      return cb - ca;
+    });
+
+  function personRowHTML(c) {
+    const col = COLORS[c.colorIdx ?? 0];
+    const nt = NETWORK_TYPE_LABELS[c.networkType];
+    return `<div class="ov-person-row" data-id="${c.id}">
+      <span class="ov-person-dot" style="background:${col.bg}"></span>
+      <span class="ov-person-name">${esc(c.name)}</span>
+      ${c.codeword ? `<span class="ov-person-codeword">[${esc(c.codeword)}]</span>` : ''}
+      ${c.location ? `<span class="ov-person-loc">📍 ${esc(c.location)}</span>` : ''}
+      ${nt ? `<span class="ov-person-type" style="color:${nt.color};border-color:${nt.color}">${nt.label}</span>` : ''}
+    </div>`;
+  }
+
+  const fieldTreeHTML = sortedClusters.map(({ meta, subs }) => {
+    const subKeys = Object.keys(subs).sort((a, b) => subs[b].length - subs[a].length);
+    const totalPeople = subKeys.reduce((n, s) => n + subs[s].length, 0);
+    return `<details class="ov-cluster">
+      <summary class="ov-cluster-head">
+        <span class="ov-cluster-dot" style="background:${meta.color}"></span>
+        <span class="ov-cluster-name">${esc(meta.label)}</span>
+        <span class="ov-cluster-count">${totalPeople}</span>
+      </summary>
+      <div class="ov-cluster-body">
+        ${subKeys.map(sub => {
+          const people = subs[sub];
+          return `<details class="ov-subcluster">
+            <summary class="ov-subcluster-head">
+              <span>${esc(sub)}</span>
+              <span class="ov-subcluster-count">${people.length}</span>
+            </summary>
+            <div class="ov-person-list">
+              ${people.map(personRowHTML).join('')}
+            </div>
+          </details>`;
+        }).join('')}
       </div>
+    </details>`;
+  }).join('');
 
-      ${upcomingMeetings.length ? `
-        <div class="ov-section">
-          <div class="ov-title">Upcoming Meetings</div>
-          <div class="cal-upcoming-list">
-            ${upcomingMeetings.map(meetingItem).join('')}
-          </div>
-        </div>` : ''}
-
+  // ── Stats (secondary) ──────────────────────────────────────
+  const statsHTML = `
+    <div class="stat-row">
+      <div class="stat-block"><div class="stat-num">${total}</div><div class="stat-label">Total</div></div>
+      <div class="stat-block"><div class="stat-num" style="color:#2a9d8f">${recent}</div><div class="stat-label">Spoke recently</div></div>
+      <div class="stat-block"><div class="stat-num" style="color:#d4820a">${withAction}</div><div class="stat-label">Actions</div></div>
+      <div class="stat-block"><div class="stat-num">${upcomingMeetings.length}</div><div class="stat-label">Meetings up</div></div>
     </div>`;
 
-  // Click listeners for overview items
+  el.innerHTML = `<div class="overview">
+
+    ${upcomingMeetings.length ? `
+    <details class="ov-collapse" open>
+      <summary class="ov-collapse-head">✦ Up Next <span class="ov-collapse-count">${upcomingMeetings.length}</span></summary>
+      <div class="cal-ticket-list">${upcomingMeetings.map(meetingItem).join('')}</div>
+    </details>` : ''}
+
+    <details class="ov-collapse"${actions.length ? ' open' : ''}>
+      <summary class="ov-collapse-head">⚡ Action Points <span class="ov-collapse-count">${actions.length}</span></summary>
+      ${actions.length
+        ? `<div class="ov-action-groups">${actionsHTML}</div>`
+        : `<div class="ov-empty">No pending actions — you're on top of it. ✦</div>`}
+    </details>
+
+    <details class="ov-collapse" open>
+      <summary class="ov-collapse-head">◎ People by Field <span class="ov-collapse-count">${total}</span></summary>
+      <div class="ov-field-tree">${fieldTreeHTML || '<div class="ov-empty">No contacts yet — add some!</div>'}</div>
+    </details>
+
+    <details class="ov-collapse">
+      <summary class="ov-collapse-head">· At a Glance</summary>
+      ${statsHTML}
+    </details>
+
+  </div>`;
+
   el.querySelectorAll('[data-id]').forEach(item => {
     item.addEventListener('click', () => openDetail(item.dataset.id));
   });
@@ -544,6 +590,13 @@ let mapVB = { x: 0, y: 0, w: 1000, h: 500 };
 let mapMode = 'geo'; // 'geo' | 'mindmap'
 let mapDragging = false;
 let mapDragStart = null;
+
+function getZoomLevel() { return 1000 / mapVB.w; }
+
+function zoomLevelClass() {
+  const z = getZoomLevel();
+  return z < 1.8 ? 'low' : z < 4 ? 'mid' : 'high';
+}
 
 function zoomVB(factor, clientX, clientY, svgEl) {
   const rect = svgEl.getBoundingClientRect();
@@ -565,15 +618,15 @@ function resetMapVB(svgEl) {
   svgEl.setAttribute('viewBox', '0 0 1000 500');
 }
 
-function attachMapInteraction(svgEl) {
-  // Scroll to zoom
+function attachMapInteraction(svgEl, afterUpdate) {
+  const upd = () => { if (afterUpdate) afterUpdate(); };
+
   svgEl.addEventListener('wheel', e => {
     e.preventDefault();
-    const factor = e.deltaY > 0 ? 1.15 : 0.87;
-    zoomVB(factor, e.clientX, e.clientY, svgEl);
+    zoomVB(e.deltaY > 0 ? 1.15 : 0.87, e.clientX, e.clientY, svgEl);
+    upd();
   }, { passive: false });
 
-  // Drag to pan
   svgEl.addEventListener('mousedown', e => {
     if (e.button !== 0) return;
     mapDragging = true;
@@ -584,17 +637,14 @@ function attachMapInteraction(svgEl) {
   window.addEventListener('mousemove', e => {
     if (!mapDragging || !mapDragStart) return;
     const rect = svgEl.getBoundingClientRect();
-    const scaleX = mapVB.w / rect.width;
-    const scaleY = mapVB.h / rect.height;
-    const dx = (e.clientX - mapDragStart.x) * scaleX;
-    const dy = (e.clientY - mapDragStart.y) * scaleY;
     mapVB = {
-      x: mapDragStart.vb.x - dx,
-      y: mapDragStart.vb.y - dy,
+      x: mapDragStart.vb.x - (e.clientX - mapDragStart.x) * mapVB.w / rect.width,
+      y: mapDragStart.vb.y - (e.clientY - mapDragStart.y) * mapVB.h / rect.height,
       w: mapDragStart.vb.w,
       h: mapDragStart.vb.h
     };
     svgEl.setAttribute('viewBox', `${mapVB.x} ${mapVB.y} ${mapVB.w} ${mapVB.h}`);
+    upd();
   });
 
   window.addEventListener('mouseup', () => {
@@ -603,29 +653,26 @@ function attachMapInteraction(svgEl) {
     svgEl.style.cursor = 'grab';
   });
 
-  // Touch pinch/pan
   let lastTouches = null;
-  svgEl.addEventListener('touchstart', e => {
-    lastTouches = e.touches;
-  }, { passive: true });
-
+  svgEl.addEventListener('touchstart', e => { lastTouches = e.touches; }, { passive: true });
   svgEl.addEventListener('touchmove', e => {
     e.preventDefault();
     if (e.touches.length === 1 && lastTouches && lastTouches.length === 1) {
       const rect = svgEl.getBoundingClientRect();
-      const scaleX = mapVB.w / rect.width;
-      const scaleY = mapVB.h / rect.height;
-      const dx = (e.touches[0].clientX - lastTouches[0].clientX) * scaleX;
-      const dy = (e.touches[0].clientY - lastTouches[0].clientY) * scaleY;
-      mapVB = { ...mapVB, x: mapVB.x - dx, y: mapVB.y - dy };
+      mapVB = {
+        ...mapVB,
+        x: mapVB.x - (e.touches[0].clientX - lastTouches[0].clientX) * mapVB.w / rect.width,
+        y: mapVB.y - (e.touches[0].clientY - lastTouches[0].clientY) * mapVB.h / rect.height,
+      };
       svgEl.setAttribute('viewBox', `${mapVB.x} ${mapVB.y} ${mapVB.w} ${mapVB.h}`);
+      upd();
     } else if (e.touches.length === 2 && lastTouches && lastTouches.length === 2) {
       const d0 = Math.hypot(lastTouches[0].clientX - lastTouches[1].clientX, lastTouches[0].clientY - lastTouches[1].clientY);
       const d1 = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
       if (d0 > 0) {
-        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-        zoomVB(d0 / d1, midX, midY, svgEl);
+        zoomVB(d0 / d1, (e.touches[0].clientX + e.touches[1].clientX) / 2,
+               (e.touches[0].clientY + e.touches[1].clientY) / 2, svgEl);
+        upd();
       }
     }
     lastTouches = e.touches;
@@ -752,134 +799,208 @@ function renderGeoMap(container) {
 }
 
 function renderMindMap(container) {
-  const VW = 1000, VH = 600;
+  const VW = 1000, VH = 650;
   const cx = VW / 2, cy = VH / 2;
 
-  // Group contacts by expertise fields
-  const fieldMap = {};
-  contacts.forEach(c => {
-    const fields = (c.expertise || '').split(',').map(s => s.trim()).filter(Boolean);
-    if (fields.length === 0) fields.push('Other');
-    fields.forEach(f => {
-      if (!fieldMap[f]) fieldMap[f] = [];
-      if (!fieldMap[f].find(x => x.id === c.id)) fieldMap[f].push(c);
-    });
-  });
-
-  const fields = Object.keys(fieldMap);
-  const numFields = fields.length;
-
-  if (numFields === 0) {
+  if (contacts.length === 0) {
     container.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--ink3);font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:1px">No contacts to map yet</div>`;
     return;
   }
 
-  const radius = Math.min(VW, VH) * 0.34;
-  const clusterColors = ['#e63946','#f4a261','#2a9d8f','#457b9d','#6d597a','#e9c46a','#264653','#c77dff','#023e8a','#606c38','#a8dadc','#f1faee'];
-
-  let hullsSVG = '';
-  let connectionsSVG = '';
-  let nodesSVG = '';
-  let labelsSVG = '';
-
-  const clusterCenters = {};
-  fields.forEach((field, fi) => {
-    const angle = (fi / numFields) * Math.PI * 2 - Math.PI / 2;
-    const ccx = cx + radius * Math.cos(angle);
-    const ccy = cy + radius * Math.sin(angle);
-    clusterCenters[field] = { x: ccx, y: ccy, color: clusterColors[fi % clusterColors.length] };
-  });
-
-  // Draw hulls (ellipses behind each cluster)
-  fields.forEach((field, fi) => {
-    const { x: ccx, y: ccy, color } = clusterCenters[field];
-    const people = fieldMap[field];
-    const hr = Math.max(40, 20 + people.length * 10);
-    hullsSVG += `<ellipse cx="${ccx}" cy="${ccy}" rx="${hr}" ry="${hr * 0.7}" fill="${color}22" stroke="${color}44" stroke-width="1.5" />`;
-  });
-
-  // Draw connection lines for multi-field contacts
+  // ── Build cluster → subcluster → people hierarchy ──────────
+  const tree = {}; // clusterId → { meta, subs: { subLabel → people[] } }
   contacts.forEach(c => {
-    const cFields = (c.expertise || '').split(',').map(s => s.trim()).filter(Boolean);
-    if (cFields.length > 1) {
-      for (let i = 0; i < cFields.length - 1; i++) {
-        const f1 = clusterCenters[cFields[i]];
-        const f2 = clusterCenters[cFields[i+1]];
-        if (f1 && f2) {
-          connectionsSVG += `<line x1="${f1.x}" y1="${f1.y}" x2="${f2.x}" y2="${f2.y}" stroke="#ccc" stroke-width="1" stroke-dasharray="4,3" opacity="0.5" />`;
-        }
-      }
+    classifyExpertise(c.expertise).forEach(({ cluster, sub }) => {
+      if (!tree[cluster.id]) tree[cluster.id] = { meta: cluster, subs: {} };
+      if (!tree[cluster.id].subs[sub]) tree[cluster.id].subs[sub] = [];
+      if (!tree[cluster.id].subs[sub].find(x => x.id === c.id))
+        tree[cluster.id].subs[sub].push(c);
+    });
+  });
+
+  const clusterIds = Object.keys(tree);
+  const numClusters = clusterIds.length;
+
+  // ── Cluster positions: radial from centre ──────────────────
+  const CLUSTER_R = 230;
+  const clusterPos = {};
+  clusterIds.forEach((cid, i) => {
+    const angle = (i / numClusters) * Math.PI * 2 - Math.PI / 2;
+    clusterPos[cid] = {
+      x: cx + CLUSTER_R * Math.cos(angle),
+      y: cy + CLUSTER_R * Math.sin(angle),
+      angle,
+    };
+  });
+
+  // Track per-person node positions (for cross-cluster connection lines)
+  const personNodes = {}; // contactId → [{ nx, ny }]
+
+  let linesSVG = '', hullsSVG = '', subHullsSVG = '', nodeSVG = '', labelSVG = '';
+
+  // ── Centre → cluster spokes ────────────────────────────────
+  clusterIds.forEach(cid => {
+    const { x, y } = clusterPos[cid];
+    linesSVG += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#d0cbbf" stroke-width="1.5" class="mm-center-line"/>`;
+  });
+
+  // ── Draw each cluster ──────────────────────────────────────
+  clusterIds.forEach(cid => {
+    const { meta, subs } = tree[cid];
+    const { x: ccx, y: ccy, angle: cAngle } = clusterPos[cid];
+    const { color } = meta;
+    const subKeys = Object.keys(subs);
+    const numSubs = subKeys.length;
+    const totalPeople = subKeys.reduce((n, s) => n + subs[s].length, 0);
+
+    // Cluster hull (big, behind everything)
+    const hullRx = Math.max(55, 38 + totalPeople * 7);
+    const hullRy = hullRx * 0.72;
+    hullsSVG += `<ellipse cx="${ccx}" cy="${ccy}" rx="${hullRx}" ry="${hullRy}" fill="${color}14" stroke="${color}35" stroke-width="2" class="mm-cluster-hull"/>`;
+
+    // ── Subcluster positions: fan away from centre ─────────
+    const fanSpread = Math.min(Math.PI * 0.75, numSubs * 0.38);
+    const subDist = Math.max(88, 68 + numSubs * 6);
+    const subPos = {};
+
+    subKeys.forEach((sub, si) => {
+      const subAngle = numSubs === 1
+        ? cAngle
+        : cAngle + (si / (numSubs - 1) - 0.5) * fanSpread;
+      subPos[sub] = {
+        x: Math.max(60, Math.min(VW - 60, ccx + subDist * Math.cos(subAngle))),
+        y: Math.max(50, Math.min(VH - 50, ccy + subDist * Math.sin(subAngle))),
+        angle: subAngle,
+      };
+    });
+
+    // ── Draw subclusters ───────────────────────────────────
+    subKeys.forEach(sub => {
+      const { x: scx, y: scy, angle: sAngle } = subPos[sub];
+      const people = subs[sub];
+      const numPeople = people.length;
+
+      // Cluster → subcluster line
+      linesSVG += `<line x1="${ccx}" y1="${ccy}" x2="${scx}" y2="${scy}" stroke="${color}50" stroke-width="1.2" class="mm-sub-line"/>`;
+
+      // Subcluster hull
+      const scRx = Math.max(28, 18 + numPeople * 8);
+      subHullsSVG += `<ellipse cx="${scx}" cy="${scy}" rx="${scRx}" ry="${scRx * 0.72}" fill="${color}20" stroke="${color}55" stroke-width="1.5" class="mm-sub-hull"/>`;
+
+      // Subcluster label (above hull)
+      labelSVG += `<text x="${scx}" y="${scy - scRx - 7}" text-anchor="middle"
+        font-size="8.5" font-weight="800" fill="${color}" font-family="'Courier New',monospace"
+        letter-spacing="0.5" class="mm-sub-label" pointer-events="none"
+        >${esc(sub.toUpperCase())}</text>`;
+
+      // ── Person nodes ──────────────────────────────────
+      const personSpread = numPeople <= 1 ? 0 : Math.min(Math.PI * 0.8, numPeople * 0.45);
+      const personDist = numPeople <= 1 ? 0 : Math.min(32, 14 + numPeople * 7);
+
+      people.forEach((c, pi) => {
+        const pAngle = numPeople <= 1
+          ? sAngle
+          : sAngle + (pi / (numPeople - 1) - 0.5) * personSpread;
+        const nx = Math.max(22, Math.min(VW - 22, scx + personDist * Math.cos(pAngle)));
+        const ny = Math.max(22, Math.min(VH - 22, scy + personDist * Math.sin(pAngle)));
+        const col = COLORS[c.colorIdx ?? 0];
+        const firstName = c.name.split(' ')[0];
+
+        if (numPeople > 1)
+          linesSVG += `<line x1="${scx}" y1="${scy}" x2="${nx}" y2="${ny}" stroke="${col.bg}50" stroke-width="1" class="mm-person-line"/>`;
+
+        if (!personNodes[c.id]) personNodes[c.id] = [];
+        personNodes[c.id].push({ nx, ny, col });
+
+        nodeSVG += `<g class="mm-person mindmap-node" data-id="${c.id}" style="cursor:pointer">
+          <circle cx="${nx}" cy="${ny}" r="15" fill="${col.bg}" stroke="white" stroke-width="2.5"/>
+          <text x="${nx}" y="${ny + 1}" text-anchor="middle" dominant-baseline="middle"
+            font-size="6.5" font-weight="900" fill="white" font-family="Georgia,serif" pointer-events="none"
+            >${esc(initials(c.name))}</text>
+          <text x="${nx}" y="${ny + 25}" text-anchor="middle"
+            font-size="9" font-weight="800" fill="${col.bg}" font-family="Georgia,serif"
+            class="mm-person-label" pointer-events="none">${esc(firstName)}</text>
+          ${c.codeword ? `<text x="${nx}" y="${ny + 36}" text-anchor="middle"
+            font-size="7" font-weight="700" fill="${col.bg}bb" font-family="'Courier New',monospace"
+            class="mm-person-label" pointer-events="none">[${esc(c.codeword.toUpperCase())}]</text>` : ''}
+        </g>`;
+      });
+    });
+
+    // ── Cluster hub (drawn over hulls) ─────────────────────
+    nodeSVG += `<g class="mm-cluster">
+      <circle cx="${ccx}" cy="${ccy}" r="30" fill="${color}" stroke="white" stroke-width="3"/>
+      <text x="${ccx}" y="${ccy - 1}" text-anchor="middle" dominant-baseline="middle"
+        font-size="8.5" font-weight="900" fill="white" font-family="'Courier New',monospace"
+        pointer-events="none">${esc(meta.label.toUpperCase().slice(0, 10))}</text>
+    </g>`;
+    labelSVG += `<text x="${ccx}" y="${ccy - 38}" text-anchor="middle"
+      font-size="12" font-weight="900" fill="${color}" font-family="'Courier New',monospace"
+      class="mm-cluster-label" pointer-events="none">${esc(meta.label.toUpperCase())}</text>
+    <text x="${ccx}" y="${ccy + 40}" text-anchor="middle"
+      font-size="8.5" fill="${color}99" font-family="'Courier New',monospace"
+      class="mm-cluster-label" pointer-events="none">${totalPeople} ${totalPeople === 1 ? 'person' : 'people'}</text>`;
+  });
+
+  // ── Cross-cluster connection lines (multi-field contacts) ──
+  let crossSVG = '';
+  Object.entries(personNodes).forEach(([, positions]) => {
+    if (positions.length < 2) return;
+    for (let i = 0; i < positions.length - 1; i++) {
+      const a = positions[i], b = positions[i + 1];
+      crossSVG += `<line x1="${a.nx}" y1="${a.ny}" x2="${b.nx}" y2="${b.ny}"
+        stroke="${a.col.bg}66" stroke-width="1.5" stroke-dasharray="4,3" class="mm-cross-line"/>`;
     }
   });
 
-  // Draw contact nodes in each cluster
-  const placed = {};
-  fields.forEach((field, fi) => {
-    const { x: ccx, y: ccy, color } = clusterCenters[field];
-    const people = fieldMap[field];
-    const nodeRadius = 16;
-    const spread = Math.max(30, nodeRadius * 1.4);
+  // ── Centre hub ─────────────────────────────────────────────
+  const centreHub = `<circle cx="${cx}" cy="${cy}" r="24" fill="var(--ink)" stroke="white" stroke-width="3"/>
+    <text x="${cx}" y="${cy + 1}" text-anchor="middle" dominant-baseline="middle"
+      font-size="8.5" font-weight="900" fill="white" font-family="'Courier New',monospace">YOU</text>`;
 
-    people.forEach((c, pi) => {
-      const pAngle = (pi / people.length) * Math.PI * 2;
-      const pDist = people.length === 1 ? 0 : Math.min(30, 12 + people.length * 6);
-      const nx = ccx + pDist * Math.cos(pAngle);
-      const ny = ccy + pDist * Math.sin(pAngle);
-      const col = COLORS[c.colorIdx ?? 0];
-      const key = c.id + '_' + field;
-      placed[key] = { nx, ny };
-
-      nodesSVG += `
-        <g class="mindmap-node" data-id="${c.id}" style="cursor:pointer">
-          <circle cx="${nx}" cy="${ny}" r="${nodeRadius}" fill="${col.bg}" stroke="white" stroke-width="2" />
-          <text x="${nx}" y="${ny}" text-anchor="middle" dominant-baseline="middle"
-            font-size="7" font-weight="900" fill="white" font-family="Georgia,serif" pointer-events="none">
-            ${initials(c.name)}
-          </text>
-        </g>`;
-    });
-
-    // Field label
-    const angle = (fi / numFields) * Math.PI * 2 - Math.PI / 2;
-    const lx = cx + (radius + 50) * Math.cos(angle);
-    const ly = cy + (radius + 50) * Math.sin(angle);
-    labelsSVG += `
-      <text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle"
-        font-size="9" font-weight="700" fill="${color}" font-family="'Courier New',monospace"
-        text-transform="uppercase" pointer-events="none">
-        ${esc(field)}
-      </text>`;
-  });
-
+  const vbH = Math.max(500, mapVB.h);
   container.innerHTML = `
-    <svg class="map-svg" viewBox="${mapVB.x} ${mapVB.y} ${mapVB.w} ${mapVB.h > 500 ? mapVB.h : 600}"
+    <svg class="map-svg mm-svg" id="mindMapSvg"
+         viewBox="${mapVB.x} ${mapVB.y} ${mapVB.w} ${vbH}"
+         data-zoom-level="${zoomLevelClass()}"
          preserveAspectRatio="xMidYMid meet"
-         style="display:block;width:100%;height:100%;background:#f8f6f0;cursor:grab">
+         style="display:block;width:100%;height:100%;background:#f5f3ee;cursor:grab">
+      ${linesSVG}
+      ${crossSVG}
       ${hullsSVG}
-      ${connectionsSVG}
-      ${nodesSVG}
-      ${labelsSVG}
+      ${subHullsSVG}
+      ${nodeSVG}
+      ${labelSVG}
+      ${centreHub}
     </svg>
     <div class="map-zoom-controls">
       <button class="map-zoom-btn" id="mapZoomIn">+</button>
       <button class="map-zoom-btn" id="mapZoomReset">⊙</button>
       <button class="map-zoom-btn" id="mapZoomOut">−</button>
-    </div>`;
+    </div>
+    <div class="mm-zoom-hint">Zoom in to reveal subclusters → people</div>`;
 
   const svgEl = container.querySelector('.map-svg');
-  attachMapInteraction(svgEl);
 
-  document.getElementById('mapZoomIn').addEventListener('click', () => {
-    const rect = svgEl.getBoundingClientRect();
-    zoomVB(0.7, rect.left + rect.width/2, rect.top + rect.height/2, svgEl);
-  });
-  document.getElementById('mapZoomOut').addEventListener('click', () => {
-    const rect = svgEl.getBoundingClientRect();
-    zoomVB(1.4, rect.left + rect.width/2, rect.top + rect.height/2, svgEl);
-  });
+  const syncZoomLevel = () => {
+    svgEl.dataset.zoomLevel = zoomLevelClass();
+  };
+
+  attachMapInteraction(svgEl, syncZoomLevel);
+
+  const zoomBtn = (id, factor) => {
+    document.getElementById(id).addEventListener('click', () => {
+      const rect = svgEl.getBoundingClientRect();
+      zoomVB(factor, rect.left + rect.width / 2, rect.top + rect.height / 2, svgEl);
+      syncZoomLevel();
+    });
+  };
+  zoomBtn('mapZoomIn', 0.65);
+  zoomBtn('mapZoomOut', 1.5);
   document.getElementById('mapZoomReset').addEventListener('click', () => {
-    mapVB = { x: 0, y: 0, w: 1000, h: 600 };
-    svgEl.setAttribute('viewBox', '0 0 1000 600');
+    mapVB = { x: 0, y: 0, w: 1000, h: 650 };
+    svgEl.setAttribute('viewBox', '0 0 1000 650');
+    syncZoomLevel();
   });
 
   container.querySelectorAll('.mindmap-node').forEach(node => {
@@ -888,7 +1009,7 @@ function renderMindMap(container) {
       const c = contacts.find(x => x.id === node.dataset.id);
       if (!c) return;
       const tt = document.getElementById('mapTooltip');
-      tt.innerHTML = `<strong>${esc(c.name)}</strong>${c.expertise ? `<span style="color:#aaa"> · ${esc(c.expertise.split(',')[0])}</span>` : ''}`;
+      tt.innerHTML = `<strong>${esc(c.name)}</strong>${c.codeword ? ` <span style="color:#aaa">[${esc(c.codeword)}]</span>` : ''}${c.expertise ? `<br><span style="color:#aaa">${esc(c.expertise)}</span>` : ''}`;
       tt.style.display = 'block';
     });
     node.addEventListener('mousemove', e => {
